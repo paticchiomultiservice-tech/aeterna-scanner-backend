@@ -1,12 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import re
 
 app = FastAPI()
-
-# =========================
-# CORS
-# =========================
 
 app.add_middleware(
     CORSMiddleware,
@@ -16,265 +13,179 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# =========================
-# DIZIONARIO PHISHING
-# =========================
+class ScanRequest(BaseModel):
+    message: str
 
-PHISHING_WORDS = [
+# DATABASE RISCHI AETERNA™
 
-    # soldi / banca
-    "bonifico",
-    "iban",
-    "pagamento",
-    "ricarica",
-    "wallet",
-    "bitcoin",
-    "crypto",
-    "btc",
-    "eth",
-    "investimento",
-    "guadagno",
-    "vincita",
-    "commissione",
-    "saldo",
-    "credito",
-    "debito",
-    "fattura",
-    "conto corrente",
-    "carta bloccata",
-    "prelievo",
-    "paypal",
-    "postepay",
-    "mastercard",
-    "visa",
-    "american express",
+danger_words = {
 
-    # urgenza
-    "urgente",
-    "immediato",
-    "subito",
-    "entro oggi",
-    "ultima possibilità",
-    "azione richiesta",
-    "account sospeso",
-    "conto sospeso",
-    "verifica account",
-    "accesso negato",
-    "blocco account",
-    "blocco carta",
-    "sicurezza bancaria",
-    "attività sospetta",
-    "tentativo di accesso",
+# URGENZA
+"urgente":20,
+"subito":15,
+"immediato":15,
+"adesso":10,
+"ultima possibilità":20,
+"scadenza":15,
+"entro oggi":20,
+"bloccato":25,
+"sospeso":25,
+"verifica urgente":30,
 
-    # phishing classico
-    "clicca qui",
-    "accedi ora",
-    "verifica identità",
-    "conferma dati",
-    "reset password",
-    "password",
-    "otp",
-    "codice sicurezza",
-    "codice verifica",
-    "sms banca",
-    "link sicuro",
-    "autenticazione",
+# SOLDI
+"bonifico":35,
+"pagamento":20,
+"transazione":20,
+"iban":40,
+"conto":20,
+"wallet":30,
+"bitcoin":40,
+"btc":35,
+"crypto":35,
+"ricarica":30,
+"poste pay":35,
+"paypal":20,
+"carta":25,
+"mastercard":20,
+"visa":20,
+"commissione":15,
 
-    # enti italiani
-    "poste italiane",
-    "agenzia entrate",
-    "inps",
-    "ministero",
-    "polizia postale",
-    "banca intesa",
-    "unicredit",
-    "paypal assistenza",
+# ISTITUZIONI
+"poste italiane":40,
+"inps":35,
+"agenzia entrate":40,
+"banca":20,
+"amazon":15,
+"paypal sicurezza":30,
+"ministero":20,
+"europol":25,
 
-    # truffe online
-    "gift card",
-    "amazon card",
-    "steam card",
-    "google play card",
-    "supporto tecnico",
-    "contattaci subito",
-    "free money",
-    "free gift",
-    "premio",
-    "hai vinto",
-    "congratulazioni",
+# DATI PERSONALI
+"otp":45,
+"password":35,
+"codice":20,
+"pin":40,
+"cvv":45,
+"documento":20,
+"identità":20,
+"accesso":15,
+"account":15,
+"verifica account":30,
 
-    # manipolazione
-    "non condividere",
-    "mantieni segreto",
-    "procedura urgente",
-    "sei stato selezionato",
-    "proteggi il tuo account",
-    "evita il blocco",
-]
+# MINACCE
+"denuncia":25,
+"tribunale":25,
+"polizia":20,
+"procedimento":20,
+"multa":20,
+"violazione":15,
+"arresto":35,
 
-# =========================
-# PATTERN PERICOLOSI
-# =========================
+# PHISHING
+"clicca qui":40,
+"link":20,
+"http":35,
+"https":20,
+"www":20,
+"tracking":20,
+"pacco":20,
+"spedizione":20,
+"corriere":20,
+"dhl":20,
+"ups":20,
+"fedex":20,
 
-DANGER_PATTERNS = [
+# PSICOLOGIA
+"regalo":15,
+"vincita":25,
+"premio":20,
+"fortunato":15,
+"offerta":10,
+"gratis":15,
+"cashback":15,
 
-    "urgente",
-    "clicca qui",
-    "verifica account",
-    "blocco account",
-    "otp",
-    "password",
-    "bonifico immediato",
-    "conto sospeso",
-    "sicurezza bancaria",
-    "accesso sospeso",
-    "hai vinto",
-    "gift card",
-    "crypto",
-    "bitcoin",
-]
+# SEXTORTION
+"video privato":50,
+"webcam":30,
+"registrato":40,
+"diffonderemo":50,
+"pagaci":40,
+"ricatto":50,
 
-# =========================
-# ROOT
-# =========================
+# RECOVERY SCAM
+"recupero fondi":35,
+"wallet bloccato":40,
+"sbloccare conto":40,
+
+# ALTRO
+"telegram":15,
+"whatsapp":10,
+"contattaci":15,
+"numero verde":15,
+"servizio clienti":10
+
+}
 
 @app.get("/")
 def home():
-
     return {
-        "status": "AETERNA Scanner Engine Online"
+        "status":"online",
+        "motore":"AETERNA Civil Shield™"
     }
 
-# =========================
-# SCAN
-# =========================
-
 @app.post("/scan")
-def scan(data: dict):
+def scan(req: ScanRequest):
 
-    text = data.get("text", "").lower()
+    text = req.message.lower()
 
     score = 0
+    found = []
 
-    findings = []
-
-    # =========================
-    # CONTROLLO PAROLE
-    # =========================
-
-    for word in PHISHING_WORDS:
-
+    for word, value in danger_words.items():
         if word in text:
+            score += value
+            found.append(word)
 
-            score += 18
+    # NUMERI TELEFONO
+    if re.search(r"\+?\d{8,}", text):
+        score += 25
+        found.append("numero telefono")
 
-            findings.append(
-                f"Keyword sospetta rilevata: {word}"
-            )
+    # IMPORTI EURO
+    if re.search(r"\d+\s?(euro|€)", text):
+        score += 30
+        found.append("importo denaro")
 
-    # =========================
-    # CONTROLLO MANIPOLAZIONE
-    # =========================
+    # LINK
+    if re.search(r"http[s]?://", text):
+        score += 35
+        found.append("link web")
 
-    for danger in DANGER_PATTERNS:
+    # EMAIL
+    if re.search(r"\S+@\S+\.\S+", text):
+        score += 15
+        found.append("email")
 
-        if danger in text:
+    # IBAN
+    if re.search(r"[A-Z]{2}\d{2}[A-Z0-9]{11,30}", text):
+        score += 50
+        found.append("iban")
 
-            score += 30
-
-            findings.append(
-                f"Manipolazione psicologica: {danger}"
-            )
-
-    # =========================
-    # CONTROLLO SOLDI
-    # =========================
-
-    MONEY_PATTERNS = [
-
-        r"€\s?\d+",
-        r"\d+\s?euro",
-        r"iban",
-        r"bonifico",
-        r"ricarica",
-        r"pagamento",
-        r"btc",
-        r"crypto",
-    ]
-
-    for pattern in MONEY_PATTERNS:
-
-        if re.search(pattern, text):
-
-            score += 40
-
-            findings.append(
-                "Pattern economico sospetto"
-            )
-
-    # =========================
-    # CONTROLLO LINK
-    # =========================
-
-    LINK_PATTERNS = [
-
-        "http://",
-        "bit.ly",
-        "tinyurl",
-        "grabify",
-        "t.me",
-        ".ru",
-    ]
-
-    for link in LINK_PATTERNS:
-
-        if link in text:
-
-            score += 35
-
-            findings.append(
-                f"Link sospetto rilevato: {link}"
-            )
-
-    # =========================
-    # SCORE MASSIMO
-    # =========================
-
-    if score > 100:
-        score = 100
-
-    # =========================
-    # RISCHIO
-    # =========================
-
-    risk = "basso"
-
-    if score >= 85:
-
-        risk = "ALTO RISCHIO"
-
-    elif score >= 50:
-
-        risk = "RISCHIO MEDIO"
-
-    elif score >= 20:
-
-        risk = "attenzione"
-
-    # =========================
-    # RISPOSTA
-    # =========================
+    if score >= 90:
+        rischio = "ALTISSIMO RISCHIO"
+    elif score >= 60:
+        rischio = "ALTO RISCHIO"
+    elif score >= 35:
+        rischio = "RISCHIO MEDIO"
+    else:
+        rischio = "BASSO RISCHIO"
 
     return {
 
-        "rischio": risk,
+        "rischio": rischio,
+        "threat_score": min(score,100),
+        "analisi": found,
+        "motore":"AETERNA Civil Shield™ AI Engine",
+        "disclaimer":"Analisi automatizzata basata su pattern comportamentali, phishing detection e indicatori cyber euristici."
 
-        "threat_score": score,
-
-        "analisi": findings,
-
-        "motore": "AETERNA Scanner Engine™",
-
-        "disclaimer":
-        "Analisi indicativa basata su euristiche e pattern comportamentali."
     }
