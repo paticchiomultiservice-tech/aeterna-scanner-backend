@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: aeterna-scanner
+    runtime: python
+    region: frankfurt
+    plan: free
+    numInstances: 1
+    buildCommand: pip install --requirement requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT --workers 1 --no-access-log --no-server-header --timeout-keep-alive 5 --limit-concurrency 100 --backlog 128
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.12
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: APP_ORIGIN
+        sync: false
+      - key: GATEWAY_URL
+        sync: false
+      - key: GATEWAY_SECRET
+        sync: false
+      - key: AUTH_SECRET
+        sync: false
