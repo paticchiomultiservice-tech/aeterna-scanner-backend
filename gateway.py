@@ -29,16 +29,26 @@ class Gateway:
     async def close(self):
         await self.client.aclose()
 
-    async def _request(self, method, url, **kwargs):
-        # Bound bytes before buffering, including a malicious/error HTML reply.
+        async def _request(self, method, url, **kwargs):
+        # Bound the decoded response before buffering.
         async with self.client.stream(method, url, **kwargs) as response:
             body = bytearray()
             async for chunk in response.aiter_bytes():
                 if len(body) + len(chunk) > 262144:
                     raise GatewayError()
                 body.extend(chunk)
-            return httpx.Response(response.status_code, headers=response.headers,
-                                  content=bytes(body), request=response.request)
+
+            # HTTPX has already decoded the response content.
+            headers = response.headers.copy()
+            for name in ("Content-Encoding", "Content-Length", "Transfer-Encoding"):
+                headers.pop(name, None)
+
+            return httpx.Response(
+                response.status_code,
+                headers=headers,
+                content=bytes(body),
+                request=response.request,
+            )
 
     async def call(self, action, payload):
         encoded = json.dumps(payload, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
