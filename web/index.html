@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="referrer" content="no-referrer">
+  <title>AETERNA · Guardian Scan Pulse 365</title>
+  <link rel="icon" href="/assets/assets/logo.png" type="image/png">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script type="module" src="/assets/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main" data-i18n="skip">Vai al contenuto</a>
+  <div class="container">
+    <header class="topbar">
+      <a class="logo-area" href="/" aria-label="AETERNA">
+        <span class="logo-shell"><img src="/assets/assets/logo.png" alt="AETERNA" width="88" height="88"></span>
+        <span><span class="brand">AETERNA</span><span class="brand-sub">Guardian Scan Pulse 365™</span></span>
+      </a>
+      <div class="header-tools"><label for="language" data-i18n="language">Lingua</label>
+        <select id="language" name="language" aria-label="Lingua / Language"><option value="it">Italiano</option><option value="en">English</option><option value="fr">Français</option><option value="es">Español</option><option value="pt">Português</option></select>
+        <button type="button" id="logout" class="button quiet" data-i18n="logout" hidden>Esci</button>
+      </div>
+    </header>
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title"><div class="hero-content">
+        <p class="eyebrow" data-i18n="heroEyebrow">Il tuo spazio AETERNA</p>
+        <h1 id="hero-title">Guardian Scan<br><span>Pulse 365™</span></h1>
+        <p class="hero-description" data-i18n="heroText">Uno spazio personale per controllare messaggi sospetti e prendere decisioni più consapevoli.</p>
+        <div class="pills"><span data-i18n="pillPrivate">Accesso personale</span><span data-i18n="pillNoArchive">Contenuti non archiviati</span><span data-i18n="pillHuman">La decisione resta tua</span></div>
+      </div><div class="hero-mark" aria-hidden="true"><img src="/assets/assets/brand-original-1.png" alt="" width="800" height="800"><small>GUARDIAN · PULSE 365</small></div></section>
+
+      <p id="global-status" class="notice" role="status" aria-live="polite" data-i18n="checking">Verifica della sessione in corso…</p>
+
+      <section id="login-panel" class="panel login-panel" aria-labelledby="login-title" hidden>
+        <div><p class="eyebrow" data-i18n="accessEyebrow">Area clienti riservata</p><h2 id="login-title" data-i18n="loginTitle">Entra nel tuo spazio.</h2><p class="muted" data-i18n="loginIntro">Usa l’email associata al tuo abbonamento. Non servono token nei link o password da ricordare.</p></div>
+        <div class="login-forms">
+          <form id="email-form" novalidate><label for="email" data-i18n="emailLabel">Email dell’abbonamento</label><input id="email" name="email" type="email" autocomplete="email" maxlength="254" required spellcheck="false" autocapitalize="none"><p class="field-help" data-i18n="emailHelp">Se l’indirizzo è abilitato, riceverai un codice monouso valido 10 minuti. Non condividere il codice.</p><button id="send-code" type="submit" class="button primary" data-i18n="sendCode">Ricevi il codice</button></form>
+          <form id="code-form" novalidate hidden><label for="code" data-i18n="codeLabel">Codice monouso a 8 cifre</label><input id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" minlength="8" maxlength="8" pattern="[0-9]{8}" required><p class="field-help" data-i18n="codeHelp">Controlla anche la cartella spam. L’invio può richiedere qualche istante.</p><div class="actions"><button id="verify-code" type="submit" class="button primary" data-i18n="verifyCode">Accedi</button><button id="change-email" type="button" class="button quiet" data-i18n="changeEmail">Cambia email / richiedi un nuovo codice</button></div></form>
+          <p id="auth-status" class="status-text" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <div id="protected-area" hidden>
+        <section class="account-grid" aria-labelledby="account-title"><div class="panel account-heading"><p class="eyebrow" data-i18n="accountEyebrow">Accesso verificato</p><h2 id="account-title" data-i18n="accountTitle">Il tuo abbonamento</h2><p class="muted" data-i18n="accountNote">Disponibilità e crediti sono verificati dal server. Nessun indice artificiale di protezione.</p></div><dl class="panel account-data"><div><dt data-i18n="plan">Piano</dt><dd id="account-plan">—</dd></div><div><dt data-i18n="expires">Valido fino al</dt><dd id="account-expires">—</dd></div><div><dt data-i18n="credits">Scansioni disponibili</dt><dd id="account-credits">—</dd></div></dl></section>
+
+        <section class="scanner-grid" aria-labelledby="scanner-title">
+          <div class="panel scanner-panel"><div class="section-heading"><div><p class="eyebrow">AETERNA Civil Shield™</p><h2 id="scanner-title" data-i18n="scannerTitle">Controlla prima di agire.</h2></div><span class="security-label" data-i18n="heuristic">Motore euristico</span></div>
+            <p class="muted" data-i18n="scannerIntro">Incolla un messaggio o descrivi una richiesta sospetta. Non inserire password, codici OTP, documenti completi o dati non necessari.</p>
+            <form id="scan-form" novalidate>
+              <div class="field-grid"><div><label for="scan-url" data-i18n="urlLabel">Link o dominio (facoltativo)</label><input id="scan-url" name="url" type="text" maxlength="2000" autocomplete="off" spellcheck="false" autocapitalize="none" aria-describedby="url-help"><p id="url-help" class="field-help" data-i18n="urlHelp">Il link viene esaminato come testo: non viene aperto né visitato.</p></div><div><label for="scan-sender" data-i18n="senderLabel">Mittente dichiarato (facoltativo)</label><input id="scan-sender" name="sender" type="text" maxlength="300" autocomplete="off" spellcheck="false"></div></div>
+              <label for="scan-payment" data-i18n="paymentLabel">Richiesta di pagamento (facoltativa)</label><input id="scan-payment" name="payment" type="text" maxlength="2000" autocomplete="off" spellcheck="false">
+              <label for="scan-message" data-i18n="messageLabel">Messaggio o trascrizione</label><textarea id="scan-message" name="message" rows="8" maxlength="20000" autocomplete="off" spellcheck="false" aria-describedby="message-help text-counter"></textarea><div class="input-foot"><span id="message-help" class="field-help" data-i18n="messageHelp">Puoi trascrivere manualmente il testo di foto, documenti o messaggi vocali.</span><span id="text-counter" class="counter">0 / 20.000</span></div>
+              <div class="ocr-box"><label for="scan-image" data-i18n="imageLabel">Estrai testo da una foto (facoltativo)</label><input id="scan-image" name="image" type="file" accept="image/png,image/jpeg,image/webp" aria-describedby="image-help"><p id="image-help" class="field-help" data-i18n="imageHelp">PNG, JPEG o WebP, massimo 8 MB e 16 megapixel (lato massimo 8.000 pixel). L’immagine resta sul dispositivo. Il testo estratto viene aggiunto al messaggio: controllalo prima di inviarlo al server per l’analisi.</p><button id="ocr-button" type="button" class="button quiet" data-i18n="ocrButton">Estrai testo sul dispositivo</button><p id="ocr-status" class="status-text" role="status" aria-live="polite"></p></div>
+              <div class="capability-note"><span aria-hidden="true">ⓘ</span><p data-i18n="fileLimits">L’OCR delle immagini avviene sul dispositivo. Non sono disponibili analisi di PDF, audio, video o malware: per questi contenuti usa una trascrizione manuale. Nessuna immagine viene caricata sul server.</p></div>
+              <div class="actions"><button id="scan-button" type="submit" class="button primary" data-i18n="scanButton">Avvia analisi</button><button id="clear-button" type="button" class="button clear" data-i18n="clearButton">Pulisci analisi</button></div>
+              <p id="scan-status" class="status-text" role="status" aria-live="polite"></p><p id="clear-status" class="status-text" role="status" aria-live="polite"></p>
+            </form>
+          </div>
+          <aside class="panel guidance"><p class="eyebrow" data-i18n="beforeYouStart">Prima di iniziare</p><h3 data-i18n="guidanceTitle">Fermati. Verifica. Scegli.</h3><ol><li data-i18n="guide1">Non pagare e non condividere credenziali sotto pressione.</li><li data-i18n="guide2">Contatta l’ente attraverso un recapito ufficiale cercato autonomamente.</li><li data-i18n="guide3">Un esito senza segnali rilevati non garantisce che il contenuto sia sicuro.</li></ol><div class="divider"></div><h3 data-i18n="clearTitle">Cosa fa “Pulisci”?</h3><p data-i18n="clearExplain">Svuota questa analisi nel browser e chiede di interrompere l’eventuale elaborazione attiva. Non cancella il tuo abbonamento.</p><p class="small muted" data-i18n="clearLimit">La conferma riguarda la nostra applicazione, non la cancellazione dei log Render o la sovrascrittura fisica della memoria.</p></aside>
+        </section>
+
+        <section id="result-panel" class="panel result-panel" aria-labelledby="result-title" hidden tabindex="-1"><div class="result-top"><div><p class="eyebrow" data-i18n="resultEyebrow">Analisi completata</p><h2 id="result-title" data-i18n="resultTitle">Segnali da valutare</h2></div><div class="score-box"><span id="result-band"></span><strong><span id="result-score"></span><small>/100</small></strong><span data-i18n="scoreLabel">Indice euristico, non probabilità</span></div></div><p class="result-disclaimer" data-i18n="resultDisclaimer">Questo indice non certifica una truffa né la sicurezza del contenuto. Sono possibili falsi positivi e segnali non rilevati.</p><div class="result-columns"><div><h3 data-i18n="indicatorsTitle">Indicatori rilevati</h3><ul id="result-indicators"></ul></div><div><h3 data-i18n="recommendationsTitle">Prossimi passi prudenti</h3><ul id="result-recommendations"></ul></div></div><h3 data-i18n="limitationsTitle">Limiti dell’analisi</h3><ul id="result-limitations" class="small muted"></ul><p class="engine-line"><span data-i18n="engineLabel">Motore</span>: <span id="result-engine"></span></p></section>
+      </div>
+
+      <section class="panel privacy-panel" aria-labelledby="privacy-title"><div><p class="eyebrow" data-i18n="privacyEyebrow">Trasparenza prima di tutto</p><h2 id="privacy-title" data-i18n="privacyTitle">Il contenuto non diventa un archivio.</h2></div><div><p data-i18n="privacyText">Le analisi vengono elaborate sul server AETERNA ospitato su Render. Non salviamo intenzionalmente messaggi o risultati in file, database, diario o memoria locale del browser. I dati necessari all’account e i metadati tecnici hanno finalità separate.</p><details><summary data-i18n="privacyMore">Cosa significa e quali sono i limiti</summary><p data-i18n="privacyLimits">“Pulisci” non è una certificazione di cancellazione dei log del fornitore o di azzeramento della RAM. Le richieste possono generare metadati tecnici presso i fornitori. Non inviamo il contenuto a modelli AI esterni. Non possiamo cancellare copie, screenshot o download fatti fuori da questa pagina.</p><p data-i18n="legacyPrivacy">Questa pagina può ripulire soltanto lo spazio del proprio dominio. Eventuali dati della vecchia pagina Google Sites/GitHub devono essere rimossi anche da quel dominio nelle impostazioni del browser. Le memorie volontarie pregresse non vengono cancellate automaticamente.</p></details></div></section>
+    </main>
+    <footer><p>AETERNA Digital Legacy · Guardian Scan Pulse 365™</p><p><span data-i18n="support">Assistenza</span>: <a href="mailto:info@aeternadigitallegacy.com">info@aeternadigitallegacy.com</a></p><p class="small" data-i18n="footerNote">Uno strumento di supporto alla valutazione. Nessuna promessa di protezione assoluta.</p></footer>
+  </div>
+  <noscript><p class="notice">JavaScript è necessario per l’accesso protetto e lo scanner. / JavaScript is required for secure sign-in and scanning.</p></noscript>
+</body>
+</html>
