@@ -29,7 +29,7 @@ class Gateway:
     async def close(self):
         await self.client.aclose()
 
-        async def _request(self, method, url, **kwargs):
+    async def _request(self, method, url, **kwargs):
         # Bound the decoded response before buffering.
         async with self.client.stream(method, url, **kwargs) as response:
             body = bytearray()
