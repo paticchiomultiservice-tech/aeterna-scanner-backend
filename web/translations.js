@@ -67,7 +67,22 @@ for(const messages of [it,en,fr,es,pt]){
   const aliases={CSRF_REJECTED:"CSRF_INVALID",ORIGIN_REJECTED:"ORIGIN_FORBIDDEN",BODY_TOO_LARGE:"PAYLOAD_TOO_LARGE",BUSY:"SERVICE_UNAVAILABLE",SERVICE_NOT_CONFIGURED:"SERVICE_UNAVAILABLE",MAIL_NOT_READY:"SERVICE_UNAVAILABLE",INTERNAL_ERROR:"SERVICE_UNAVAILABLE",PORTAL_NOT_INSTALLED:"SERVICE_UNAVAILABLE",NOT_FOUND:"INVALID_REQUEST",JSON_REQUIRED:"INVALID_REQUEST",UNSUPPORTED_ENCODING:"INVALID_REQUEST",LEGACY_ENDPOINT_DISABLED:"ORIGIN_FORBIDDEN",OPERATION_NOT_FOUND:"INVALID_REQUEST",ACCOUNT_INVALID:"SERVICE_UNAVAILABLE",ACCESS_DENIED:"UNAUTHORIZED",SUBSCRIPTION_EXPIRED:"ACCOUNT_EXPIRED",OPERATION_CANCELLED:"SCAN_CANCELLED",OPERATION_EXPIRED:"SCAN_TIMEOUT",OPERATION_FINALIZED:"OPERATION_REPLAY"};
   for(const [code,target]of Object.entries(aliases))messages.errors[code]=messages.errors[target];
 }
-
+// AETERNA — conferma Pulisci verificata
+Object.assign(it, {
+  clearConfirmed: "Testo e risultati rimossi. Il server conferma che l’analisi non è più attiva."
+});
+Object.assign(en, {
+  clearConfirmed: "Text and results cleared. The server confirms that the analysis is no longer running."
+});
+Object.assign(fr, {
+  clearConfirmed: "Texte et résultats effacés. Le serveur confirme que l’analyse n’est plus en cours."
+});
+Object.assign(es, {
+  clearConfirmed: "Texto y resultados borrados. El servidor confirma que el análisis ya no está en curso."
+});
+Object.assign(pt, {
+  clearConfirmed: "Texto e resultados removidos. O servidor confirma que a análise já não está em curso."
+});
 export const MESSAGES = Object.freeze({it,en,fr,es,pt});
 export function normaliseLocale(value){ const locale=String(value||"").toLowerCase().split(/[-_]/)[0];return LANGUAGES.includes(locale)?locale:"it"; }
 export function translate(locale,key){ const parts=key.split("."); let value=MESSAGES[normaliseLocale(locale)]; for(const part of parts){ value=value?.[part]; } return typeof value==="string"?value:null; }
