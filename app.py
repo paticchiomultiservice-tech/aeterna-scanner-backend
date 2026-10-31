@@ -109,9 +109,12 @@ def sanitize_account(data):
         raise GatewayError()
     plan, level, expiry = data.get("plan"), data.get("level"), data.get("expires_at")
     unlimited, remaining = data.get("unlimited"), data.get("scans_remaining")
+    expiry_valid = (
+        isinstance(expiry, str) and re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", expiry)
+    ) or (plan == "scanner_10" and expiry is None and unlimited is False)
     if (not isinstance(plan, str) or not 1 <= len(plan) <= 80 or
         not isinstance(level, str) or not 1 <= len(level) <= 80 or
-        not isinstance(expiry, str) or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", expiry) or
+        not expiry_valid or
         type(unlimited) is not bool or
         (remaining is not None and (type(remaining) is not int or remaining < 0)) or
         (not unlimited and remaining is None)):
@@ -577,3 +580,4 @@ def create_app(settings=None, gateway=None, analyzer=analyze):
 
 
 app = create_app()
+
