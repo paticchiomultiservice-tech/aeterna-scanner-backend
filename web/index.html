@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="dark">
   <meta name="referrer" content="no-referrer">
-  <title>AETERNA · Guardian Scan Pulse 365</title>
+  <title>AETERNA CORE Pulse365 · Area Clienti e Scanner</title>
+  <meta name="description" content="Area Clienti AETERNA: scanner, percorsi guidati, Protocollo e Continuity Passport sotto il tuo controllo.">
   <link rel="icon" href="/assets/assets/logo.png" type="image/png">
   <link rel="apple-touch-icon" href="/assets/assets/logo.png">
 <meta name="apple-mobile-web-app-title" content="AETERNA">
   <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="stylesheet" href="/assets/core.css">
   <script type="module" src="/assets/app.js"></script>
 </head>
 <body>
@@ -18,7 +20,7 @@
     <header class="topbar">
       <a class="logo-area" href="/" aria-label="AETERNA">
         <span class="logo-shell"><img src="/assets/assets/logo.png" alt="AETERNA" width="88" height="88"></span>
-        <span><span class="brand">AETERNA</span><span class="brand-sub">Guardian Scan Pulse 365™</span></span>
+        <span><span class="brand">AETERNA</span><span class="brand-sub">CORE Pulse365 · Guardian Scan</span></span>
       </a>
       <div class="header-tools"><label for="language" data-i18n="language">Lingua</label>
         <select id="language" name="language" aria-label="Lingua / Language"><option value="it">Italiano</option><option value="en">English</option><option value="fr">Français</option><option value="es">Español</option><option value="pt">Português</option></select>
@@ -28,7 +30,7 @@
     <main id="main">
       <section class="hero" aria-labelledby="hero-title"><div class="hero-content">
         <p class="eyebrow" data-i18n="heroEyebrow">Il tuo spazio AETERNA</p>
-        <h1 id="hero-title">Guardian Scan<br><span>Pulse 365™</span></h1>
+        <h1 id="hero-title">AETERNA CORE<br><span>Pulse365™</span></h1>
         <p class="hero-description" data-i18n="heroText">Uno spazio personale per controllare messaggi sospetti e prendere decisioni più consapevoli.</p>
         <div class="pills"><span data-i18n="pillPrivate">Accesso personale</span><span data-i18n="pillNoArchive">Contenuti non archiviati</span><span data-i18n="pillHuman">La decisione resta tua</span></div>
       </div><div class="hero-mark" aria-hidden="true"><img src="/assets/assets/brand-original-1.png" alt="" width="800" height="800"><small>GUARDIAN · PULSE 365</small></div></section>
@@ -46,6 +48,8 @@
 
       <div id="protected-area" hidden>
         <section class="account-grid" aria-labelledby="account-title"><div class="panel account-heading"><p class="eyebrow" data-i18n="accountEyebrow">Accesso verificato</p><h2 id="account-title" data-i18n="accountTitle">Il tuo abbonamento</h2><p class="muted" data-i18n="accountNote">Disponibilità e crediti sono verificati dal server. Nessun indice artificiale di protezione.</p></div><dl class="panel account-data"><div><dt data-i18n="plan">Piano</dt><dd id="account-plan">—</dd></div><div><dt data-i18n="expires">Valido fino al</dt><dd id="account-expires">—</dd></div><div><dt data-i18n="credits">Scansioni disponibili</dt><dd id="account-credits">—</dd></div></dl></section>
+
+        <div id="journey-root"></div>
 
         <section class="scanner-grid" aria-labelledby="scanner-title">
           <div class="panel scanner-panel"><div class="section-heading"><div><p class="eyebrow">AETERNA Civil Shield™</p><h2 id="scanner-title" data-i18n="scannerTitle">Controlla prima di agire.</h2></div><span class="security-label" data-i18n="heuristic">Motore euristico</span></div>
