@@ -207,7 +207,7 @@ class PrivacyMiddleware:
             return await error("UNSUPPORTED_ENCODING", 415)(scope, receive, self.secure_send(send))
         if scope["method"] in ("POST", "PUT", "PATCH", "DELETE"):
             origin = headers.get(b"origin", b"").decode("latin-1")
-            if not self.settings.app_origin or origin != self.settings.app_origin:
+            if not self.settings.origin_allowed(origin):
                 return await error("ORIGIN_REJECTED", 403)(scope, receive, self.secure_send(send))
             if headers.get(b"content-type", b"").split(b";", 1)[0].strip().lower() != b"application/json":
                 return await error("JSON_REQUIRED", 415)(scope, receive, self.secure_send(send))
