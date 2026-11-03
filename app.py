@@ -28,6 +28,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from engine import ScanCancelled, ScanTimedOut, analyze
 from gateway import Gateway, GatewayError
 from settings import Settings
+from passport_model import validate_passport, validate_services, validate_workspace
 
 
 COOKIE = "__Host-aeterna_session"
@@ -60,6 +61,10 @@ def public_gateway_error(exc):
         return APIError(exc.code, 409)
     if exc.code in {"RATE_LIMITED", "TOO_MANY_REQUESTS"}:
         return APIError("RATE_LIMITED", 429)
+    if exc.code == "WORKSPACE_CONFLICT":
+        return APIError("WORKSPACE_CONFLICT", 409)
+    if exc.code == "WORKSPACE_INVALID":
+        return APIError("WORKSPACE_INVALID", 422)
     return APIError("SERVICE_UNAVAILABLE", 503)
 
 
@@ -101,6 +106,16 @@ class ScanInput(ClosedModel):
 
 class EmptyInput(ClosedModel):
     pass
+
+
+class WorkspaceInput(ClosedModel):
+    expected_revision: int = Field(ge=0, le=2147483646)
+    passport: dict
+
+    @field_validator("passport")
+    @classmethod
+    def organizational_data_only(cls, value):
+        return validate_passport(value)
 
 
 def sanitize_account(data):
@@ -358,7 +373,7 @@ def create_app(settings=None, gateway=None, analyzer=analyze):
     @app.exception_handler(RequestValidationError)
     async def validation_handler(_request, _exc):
         # Never serialize exc.errors(): it can include customer input.
-        return error("INVALID_REQUEST", 422)
+        return error("WORKSPACE_INVALID" if _request.url.path == "/api/workspace" else "INVALID_REQUEST", 422)
 
     @app.exception_handler(StarletteHTTPException)
     async def http_error_handler(_request, exc):
@@ -395,6 +410,47 @@ def create_app(settings=None, gateway=None, analyzer=analyze):
             response.delete_cookie(COOKIE, path="/", secure=True, httponly=True, samesite="lax")
             return response
         return authenticated_response(account, session_secret(request))
+
+    @app.get("/api/workspace")
+    async def workspace_get(request: Request):
+        configured()
+        owner = session_hash(request)
+        rates.check(("workspace_read", owner), 120, 60)
+        await current_account(request)
+        data = await call("workspace_get", {"session_hash": owner})
+        try:
+            return validate_workspace(data)
+        except (ValueError, TypeError, OverflowError):
+            raise APIError("SERVICE_UNAVAILABLE", 503) from None
+
+    @app.post("/api/workspace")
+    async def workspace_put(body: WorkspaceInput, request: Request):
+        configured()
+        csrf(request)
+        owner = session_hash(request)
+        rates.check(("workspace_write", owner), 60, 60)
+        await current_account(request)
+        data = await call("workspace_put", {"session_hash": owner,
+                          "expected_revision": body.expected_revision, "passport": body.passport})
+        try:
+            result = validate_workspace(data)
+            if result["revision"] != body.expected_revision + 1 or result["passport"] != body.passport:
+                raise ValueError("INVALID_WORKSPACE_ACKNOWLEDGEMENT")
+            return result
+        except (ValueError, TypeError, OverflowError):
+            raise APIError("SERVICE_UNAVAILABLE", 503) from None
+
+    @app.get("/api/services")
+    async def services_get(request: Request):
+        configured()
+        owner = session_hash(request)
+        rates.check(("services_read", owner), 60, 60)
+        await current_account(request)
+        data = await call("service_get", {"session_hash": owner})
+        try:
+            return validate_services(data)
+        except (ValueError, TypeError, OverflowError):
+            raise APIError("SERVICE_UNAVAILABLE", 503) from None
 
     @app.post("/api/auth/start")
     async def auth_start(body: StartInput, request: Request):

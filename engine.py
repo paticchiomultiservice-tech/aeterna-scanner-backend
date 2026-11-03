@@ -9,7 +9,7 @@ import time
 import unicodedata
 
 
-ENGINE = "AETERNA Civil Shield / heuristic-2026-10-17"
+ENGINE = "AETERNA Civil Shield / heuristic-2026-11-03"
 
 
 class ScanCancelled(Exception):
@@ -34,7 +34,9 @@ PATTERNS = {
     "request": pattern(r"\b(?:invia\w*|comunica\w*|fornisci|inserisci|digita|conferma|send|share|enter|provide|confirm|envoy\w*|saisis\w*|communiqu\w*|envi\w*|introdu\w*|compart\w*|fornec\w*|digit\w*)\b"),
     "money": pattern(r"\b(?:bonifico|pagamento|paga|pagare|transfer|payment|pay|virement|paiement|payer|transferencia|pago|pagar|pagamento|pix|ricarica|recharge|recarga)\b"),
     "threat": pattern(r"\b(?:sospes\w*|bloccat\w*|chiusura|suspended|blocked|closure|suspendu\w*|bloqu\w*|fermeture|suspendid\w*|suspens\w*|encerramento)\b"),
-    "prize": pattern(r"\b(?:hai vinto|vincita|premio|you won|winner|prize|gagne|gagnant|prix|has ganado|ganador|voce ganhou|ganhou|premio)\b"),
+    # French prix also means price; premio can be an insurance premium.
+    # Require an explicit winning/claiming context for these ambiguous words.
+    "prize": pattern(r"\b(?:hai vinto|vincita|(?:ritira\w*|riscatta\w*) (?:il tuo |un )?premio|you (?:have )?won|winner|prize|gagnant|(?:vous avez |tu as )gagne|(?:reclamez|retirez) (?:votre |un )?prix|has ganado|ganador|(?:reclama|recoge) (?:tu |un )?premio|(?:voce )?ganhou|(?:resgate|reclame) (?:seu |um )?premio)\b"),
     "crypto": pattern(r"\b(?:bitcoin|btc|crypto|criptovalut\w*|cryptomonnaie\w*|criptomoned\w*|criptomoed\w*|gift card|carte regalo|cartes cadeaux|tarjetas regalo|cartoes presente)\b"),
     "extortion": pattern(r"\b(?:ricatto|diffonder\w*|video privato|sextortion|blackmail|private video|chantage|video privee?|extorsion|video privado|chantagem|extorsao)\b"),
     "recovery": pattern(r"\b(?:recupero fondi|recuperare i fondi|recover your funds|fund recovery|recuperation de fonds|recuperar (?:tus |sus |os )?fondos|recuperacao de fundos)\b"),
