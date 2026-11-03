@@ -5,7 +5,7 @@ import {createWorkspace} from "./workspace.js";
 const $=(id)=>document.getElementById(id);
 const generation=createGeneration();
 const state={locale:"it",csrf:null,account:null,challenge:null,operation:null,remoteUncertain:false,scanController:null,clearController:null,authController:null,logoutBusy:false,authBusy:false,scanning:false,clearing:false,ocrWorker:null,ocrPending:null,ocrBusy:false,ocrTimer:null,blobUrls:new Set(),statusKeys:new Map()};
-const journey=createWorkspace({root:$("journey-root"),getLocale:()=>state.locale,profileRequest:(...args)=>request(...args),onViewChange:view=>{$("scanner-surface").hidden=view!=="scanner";}});
+const journey=createWorkspace({root:$("journey-root"),getLocale:()=>state.locale,profileRequest:(path,options={})=>request(path,{timeoutMs:35000,...options}),onViewChange:view=>{$("scanner-surface").hidden=view!=="scanner";}});
 const LOCALE_KEY="aeterna.core.locale";
 const timeout=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
 class ApiError extends Error{constructor(code,status=0){super(code);this.code=code;this.status=status;}}
