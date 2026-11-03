@@ -25,7 +25,15 @@ export function validatePassport(input){const p=exact(input,['schema','updatedAt
 function changed(p,now){const copy=validatePassport(p);iso(now);if(Date.parse(now)<Date.parse(copy.updatedAt))fail();copy.updatedAt=now;return copy;}
 export function withJourney(p,journey,now=new Date().toISOString()){const copy=changed(p,now);copy.journey=validateJourney(journey);return validatePassport(copy);}
 export function withCare(p,care,now=new Date().toISOString()){const copy=changed(p,now);copy.care=validateCare(care,now);const choices=Object.values(copy.care.future);copy.journey.preferences.representation=choices.every(v=>v==='avoid')?'no_replica':choices.every(v=>v==='discuss')?'discuss':'undecided';copy.journey.updatedAt=now;return validatePassport(copy);}
-export function saveRecord(p,kind,item,now=new Date().toISOString()){if(!['inventory','delegations'].includes(kind))fail();const copy=changed(p,now),value=kind==='inventory'?inventoryItem(item):delegationItem(item);const index=copy[kind].findIndex(x=>x.id===value.id);if(index<0)copy[kind].push(value);else copy[kind][index]=value;return validatePassport(copy);}
+// A proof belongs to the exact service/access/recovery combination that was
+// tested. Changing that combination always clears the proof, even if a stale
+// form submits its checked box (or a caller submits a fresh timestamp). A new
+// confirmation must be a separate operation against the saved combination.
+function invalidateChangedInventoryProof(previous,next){
+  if(previous&&['service','access','recovery'].some(key=>previous[key]!==next[key]))next.testedAt=null;
+  return next;
+}
+export function saveRecord(p,kind,item,now=new Date().toISOString()){if(!['inventory','delegations'].includes(kind))fail();const copy=changed(p,now),value=kind==='inventory'?inventoryItem(item):delegationItem(item);const index=copy[kind].findIndex(x=>x.id===value.id);if(kind==='inventory'){if(value.testedAt&&Date.parse(value.testedAt)>Date.parse(now))fail();invalidateChangedInventoryProof(index<0?null:copy.inventory[index],value);}if(index<0)copy[kind].push(value);else copy[kind][index]=value;return validatePassport(copy);}
 export function removeRecord(p,kind,itemId,now=new Date().toISOString()){if(!['inventory','delegations'].includes(kind))fail();const copy=changed(p,now),checkedId=id(itemId);copy[kind]=copy[kind].filter(x=>x.id!==checkedId);return validatePassport(copy);}
 export function exportPassport(p,now=new Date().toISOString()){const passport=validatePassport(p);iso(now);if(Date.parse(now)<Date.parse(passport.updatedAt))fail();return JSON.stringify({schema:'aeterna.passport-export.v3',exportedAt:now,passport},null,2);}
 export function importPassport(text,now=new Date().toISOString()){
