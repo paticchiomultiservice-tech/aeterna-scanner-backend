@@ -28,7 +28,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from engine import ScanCancelled, ScanTimedOut, analyze
 from gateway import Gateway, GatewayError
 from settings import Settings
-from passport_model import validate_passport, validate_services, validate_workspace
+from passport_model import validate_passport, validate_services, validate_workspace, validate_capabilities, PassportSchemaUnsupported
 
 
 COOKIE = "__Host-aeterna_session"
@@ -61,8 +61,10 @@ def public_gateway_error(exc):
         return APIError(exc.code, 409)
     if exc.code in {"RATE_LIMITED", "TOO_MANY_REQUESTS"}:
         return APIError("RATE_LIMITED", 429)
-    if exc.code == "WORKSPACE_CONFLICT":
-        return APIError("WORKSPACE_CONFLICT", 409)
+    if exc.code in {"WORKSPACE_CONFLICT", "WORKSPACE_SCHEMA_UNSUPPORTED"}:
+        return APIError(exc.code, 409)
+    if exc.code == "WORKSPACE_INVALID_TRANSITION":
+        return APIError("WORKSPACE_INVALID_TRANSITION", 422)
     if exc.code == "WORKSPACE_INVALID":
         return APIError("WORKSPACE_INVALID", 422)
     return APIError("SERVICE_UNAVAILABLE", 503)
@@ -115,7 +117,10 @@ class WorkspaceInput(ClosedModel):
     @field_validator("passport")
     @classmethod
     def organizational_data_only(cls, value):
-        return validate_passport(value)
+        try:
+            return validate_passport(value)
+        except PassportSchemaUnsupported:
+            raise APIError("WORKSPACE_SCHEMA_UNSUPPORTED", 409) from None
 
 
 def sanitize_account(data):
@@ -411,6 +416,18 @@ def create_app(settings=None, gateway=None, analyzer=analyze):
             return response
         return authenticated_response(account, session_secret(request))
 
+    @app.get("/api/workspace/capabilities")
+    async def workspace_capabilities(request: Request):
+        configured()
+        owner = session_hash(request)
+        rates.check(("workspace_capabilities", owner), 60, 60)
+        await current_account(request)
+        data = await call("workspace_capabilities", {"session_hash": owner})
+        try:
+            return validate_capabilities(data)
+        except (ValueError, TypeError, OverflowError):
+            raise APIError("SERVICE_UNAVAILABLE", 503) from None
+
     @app.get("/api/workspace")
     async def workspace_get(request: Request):
         configured()
@@ -420,6 +437,8 @@ def create_app(settings=None, gateway=None, analyzer=analyze):
         data = await call("workspace_get", {"session_hash": owner})
         try:
             return validate_workspace(data)
+        except PassportSchemaUnsupported:
+            raise APIError("WORKSPACE_SCHEMA_UNSUPPORTED", 409) from None
         except (ValueError, TypeError, OverflowError):
             raise APIError("SERVICE_UNAVAILABLE", 503) from None
 

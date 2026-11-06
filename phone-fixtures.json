@@ -1,0 +1,988 @@
+{
+  "schema": "aeterna.phone-fixtures.v1",
+  "passportBase": {"schema":"aeterna.passport.v3","updatedAt":"2026-11-06T12:00:00.000Z","journey":{"schema":"aeterna.journey.v1","createdAt":"2026-11-06T12:00:00.000Z","updatedAt":"2026-11-06T12:00:00.000Z","clientType":"Privato","goals":[],"phases":{"map":{"status":"todo","updatedAt":null},"access":{"status":"todo","updatedAt":null},"recovery":{"status":"todo","updatedAt":null},"backup":{"status":"todo","updatedAt":null},"verify":{"status":"todo","updatedAt":null},"people":{"status":"todo","updatedAt":null},"permissions":{"status":"todo","updatedAt":null},"legacy":{"status":"todo","updatedAt":null},"memory":{"status":"todo","updatedAt":null},"review":{"status":"todo","updatedAt":null}},"preferences":{"representation":"undecided","helper":"undecided","agent":"undecided"},"diary":[]},"inventory":[],"delegations":[],"care":{"roles":[],"future":{"voice":"undecided","face":"undecided","style":"undecided"},"memory":{"topic":"undecided","prepared":false,"updatedAt":null},"review":{"cadenceDays":90,"lastCheckedAt":null}}},
+  "now": "2026-11-06T12:00:00.000Z",
+  "scenarios": [
+    {
+      "name": "phone_only",
+      "inventory": [
+        {
+          "id": "item_account-00000001",
+          "service": "email",
+          "access": "password_mfa",
+          "recovery": "unknown",
+          "testedAt": null
+        }
+      ],
+      "continuity": {
+        "schema": "aeterna.phone-continuity.v1",
+        "primaryPhoneId": "resource_00000001",
+        "targetInventoryIds": [
+          "item_account-00000001"
+        ],
+        "resources": [
+          {
+            "id": "resource_00000001",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000002",
+            "kind": "account",
+            "inventoryId": "item_account-00000001",
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          }
+        ],
+        "methods": [
+          {
+            "id": "method_00000001",
+            "targetId": "resource_00000002",
+            "purpose": "access",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000001"
+            ]
+          }
+        ],
+        "checks": []
+      },
+      "expectedStates": [
+        "blocked_in_model"
+      ]
+    },
+    {
+      "name": "independent_second_device",
+      "inventory": [
+        {
+          "id": "item_account-00000001",
+          "service": "email",
+          "access": "password_mfa",
+          "recovery": "unknown",
+          "testedAt": null
+        }
+      ],
+      "continuity": {
+        "schema": "aeterna.phone-continuity.v1",
+        "primaryPhoneId": "resource_00000001",
+        "targetInventoryIds": [
+          "item_account-00000001"
+        ],
+        "resources": [
+          {
+            "id": "resource_00000001",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000002",
+            "kind": "account",
+            "inventoryId": "item_account-00000001",
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000003",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          }
+        ],
+        "methods": [
+          {
+            "id": "method_00000001",
+            "targetId": "resource_00000002",
+            "purpose": "access",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000001"
+            ]
+          },
+          {
+            "id": "method_00000002",
+            "targetId": "resource_00000002",
+            "purpose": "recovery",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000003"
+            ]
+          }
+        ],
+        "checks": []
+      },
+      "expectedStates": [
+        "path_declared"
+      ]
+    },
+    {
+      "name": "second_device_same_cloud",
+      "inventory": [
+        {
+          "id": "item_account-00000001",
+          "service": "email",
+          "access": "password_mfa",
+          "recovery": "unknown",
+          "testedAt": null
+        }
+      ],
+      "continuity": {
+        "schema": "aeterna.phone-continuity.v1",
+        "primaryPhoneId": "resource_00000001",
+        "targetInventoryIds": [
+          "item_account-00000001"
+        ],
+        "resources": [
+          {
+            "id": "resource_00000001",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000002",
+            "kind": "account",
+            "inventoryId": "item_account-00000001",
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000003",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000004",
+            "kind": "cloud",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          }
+        ],
+        "methods": [
+          {
+            "id": "method_00000001",
+            "targetId": "resource_00000002",
+            "purpose": "recovery",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000003"
+            ]
+          },
+          {
+            "id": "method_00000002",
+            "targetId": "resource_00000003",
+            "purpose": "access",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000004"
+            ]
+          },
+          {
+            "id": "method_00000003",
+            "targetId": "resource_00000004",
+            "purpose": "access",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000001"
+            ]
+          }
+        ],
+        "checks": []
+      },
+      "expectedStates": [
+        "blocked_in_model"
+      ]
+    },
+    {
+      "name": "email_cloud_cycle",
+      "inventory": [
+        {
+          "id": "item_account-00000001",
+          "service": "email",
+          "access": "password_mfa",
+          "recovery": "unknown",
+          "testedAt": null
+        }
+      ],
+      "continuity": {
+        "schema": "aeterna.phone-continuity.v1",
+        "primaryPhoneId": "resource_00000001",
+        "targetInventoryIds": [
+          "item_account-00000001"
+        ],
+        "resources": [
+          {
+            "id": "resource_00000001",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000002",
+            "kind": "account",
+            "inventoryId": "item_account-00000001",
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000004",
+            "kind": "cloud",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          }
+        ],
+        "methods": [
+          {
+            "id": "method_00000001",
+            "targetId": "resource_00000002",
+            "purpose": "recovery",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000004"
+            ]
+          },
+          {
+            "id": "method_00000002",
+            "targetId": "resource_00000004",
+            "purpose": "access",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000002"
+            ]
+          }
+        ],
+        "checks": []
+      },
+      "expectedStates": [
+        "blocked_in_model"
+      ]
+    },
+    {
+      "name": "offline_breaks_cycle",
+      "inventory": [
+        {
+          "id": "item_account-00000001",
+          "service": "email",
+          "access": "password_mfa",
+          "recovery": "unknown",
+          "testedAt": null
+        }
+      ],
+      "continuity": {
+        "schema": "aeterna.phone-continuity.v1",
+        "primaryPhoneId": "resource_00000001",
+        "targetInventoryIds": [
+          "item_account-00000001"
+        ],
+        "resources": [
+          {
+            "id": "resource_00000001",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000002",
+            "kind": "account",
+            "inventoryId": "item_account-00000001",
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000004",
+            "kind": "cloud",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000005",
+            "kind": "offline",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          }
+        ],
+        "methods": [
+          {
+            "id": "method_00000001",
+            "targetId": "resource_00000002",
+            "purpose": "recovery",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000004"
+            ]
+          },
+          {
+            "id": "method_00000002",
+            "targetId": "resource_00000004",
+            "purpose": "access",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000002"
+            ]
+          },
+          {
+            "id": "method_00000003",
+            "targetId": "resource_00000002",
+            "purpose": "recovery",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000005"
+            ]
+          }
+        ],
+        "checks": []
+      },
+      "expectedStates": [
+        "path_declared"
+      ]
+    },
+    {
+      "name": "incomplete_cycle",
+      "inventory": [
+        {
+          "id": "item_account-00000001",
+          "service": "email",
+          "access": "password_mfa",
+          "recovery": "unknown",
+          "testedAt": null
+        }
+      ],
+      "continuity": {
+        "schema": "aeterna.phone-continuity.v1",
+        "primaryPhoneId": "resource_00000001",
+        "targetInventoryIds": [
+          "item_account-00000001"
+        ],
+        "resources": [
+          {
+            "id": "resource_00000001",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000002",
+            "kind": "account",
+            "inventoryId": "item_account-00000001",
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000004",
+            "kind": "cloud",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": false
+          }
+        ],
+        "methods": [
+          {
+            "id": "method_00000001",
+            "targetId": "resource_00000002",
+            "purpose": "access",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000004"
+            ]
+          },
+          {
+            "id": "method_00000002",
+            "targetId": "resource_00000004",
+            "purpose": "access",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000002"
+            ]
+          }
+        ],
+        "checks": []
+      },
+      "expectedStates": [
+        "unknown"
+      ]
+    },
+    {
+      "name": "unknown_second_device",
+      "inventory": [
+        {
+          "id": "item_account-00000001",
+          "service": "email",
+          "access": "password_mfa",
+          "recovery": "unknown",
+          "testedAt": null
+        }
+      ],
+      "continuity": {
+        "schema": "aeterna.phone-continuity.v1",
+        "primaryPhoneId": "resource_00000001",
+        "targetInventoryIds": [
+          "item_account-00000001"
+        ],
+        "resources": [
+          {
+            "id": "resource_00000001",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000002",
+            "kind": "account",
+            "inventoryId": "item_account-00000001",
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000003",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "unknown",
+            "mode": "unknown",
+            "methodsComplete": false
+          }
+        ],
+        "methods": [
+          {
+            "id": "method_00000001",
+            "targetId": "resource_00000002",
+            "purpose": "recovery",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000003"
+            ]
+          }
+        ],
+        "checks": []
+      },
+      "expectedStates": [
+        "unknown"
+      ]
+    },
+    {
+      "name": "planned_method_not_access",
+      "inventory": [
+        {
+          "id": "item_account-00000001",
+          "service": "email",
+          "access": "password_mfa",
+          "recovery": "unknown",
+          "testedAt": null
+        }
+      ],
+      "continuity": {
+        "schema": "aeterna.phone-continuity.v1",
+        "primaryPhoneId": "resource_00000001",
+        "targetInventoryIds": [
+          "item_account-00000001"
+        ],
+        "resources": [
+          {
+            "id": "resource_00000001",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000002",
+            "kind": "account",
+            "inventoryId": "item_account-00000001",
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000005",
+            "kind": "offline",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          }
+        ],
+        "methods": [
+          {
+            "id": "method_00000001",
+            "targetId": "resource_00000002",
+            "purpose": "recovery",
+            "readiness": "planned",
+            "requires": [
+              "resource_00000005"
+            ]
+          }
+        ],
+        "checks": []
+      },
+      "expectedStates": [
+        "blocked_in_model"
+      ]
+    },
+    {
+      "name": "and_needs_phone",
+      "inventory": [
+        {
+          "id": "item_account-00000001",
+          "service": "email",
+          "access": "password_mfa",
+          "recovery": "unknown",
+          "testedAt": null
+        }
+      ],
+      "continuity": {
+        "schema": "aeterna.phone-continuity.v1",
+        "primaryPhoneId": "resource_00000001",
+        "targetInventoryIds": [
+          "item_account-00000001"
+        ],
+        "resources": [
+          {
+            "id": "resource_00000001",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000002",
+            "kind": "account",
+            "inventoryId": "item_account-00000001",
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000005",
+            "kind": "offline",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          }
+        ],
+        "methods": [
+          {
+            "id": "method_00000001",
+            "targetId": "resource_00000002",
+            "purpose": "recovery",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000005",
+              "resource_00000001"
+            ]
+          }
+        ],
+        "checks": []
+      },
+      "expectedStates": [
+        "blocked_in_model"
+      ]
+    },
+    {
+      "name": "unknown_method",
+      "inventory": [
+        {
+          "id": "item_account-00000001",
+          "service": "email",
+          "access": "password_mfa",
+          "recovery": "unknown",
+          "testedAt": null
+        }
+      ],
+      "continuity": {
+        "schema": "aeterna.phone-continuity.v1",
+        "primaryPhoneId": "resource_00000001",
+        "targetInventoryIds": [
+          "item_account-00000001"
+        ],
+        "resources": [
+          {
+            "id": "resource_00000001",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000002",
+            "kind": "account",
+            "inventoryId": "item_account-00000001",
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000005",
+            "kind": "offline",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          }
+        ],
+        "methods": [
+          {
+            "id": "method_00000001",
+            "targetId": "resource_00000002",
+            "purpose": "recovery",
+            "readiness": "unknown",
+            "requires": [
+              "resource_00000005"
+            ]
+          }
+        ],
+        "checks": []
+      },
+      "expectedStates": [
+        "unknown"
+      ]
+    },
+    {
+      "name": "unavailable_independent",
+      "inventory": [
+        {
+          "id": "item_account-00000001",
+          "service": "email",
+          "access": "password_mfa",
+          "recovery": "unknown",
+          "testedAt": null
+        }
+      ],
+      "continuity": {
+        "schema": "aeterna.phone-continuity.v1",
+        "primaryPhoneId": "resource_00000001",
+        "targetInventoryIds": [
+          "item_account-00000001"
+        ],
+        "resources": [
+          {
+            "id": "resource_00000001",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000002",
+            "kind": "account",
+            "inventoryId": "item_account-00000001",
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000005",
+            "kind": "offline",
+            "inventoryId": null,
+            "readiness": "unavailable",
+            "mode": "independent",
+            "methodsComplete": true
+          }
+        ],
+        "methods": [
+          {
+            "id": "method_00000001",
+            "targetId": "resource_00000002",
+            "purpose": "recovery",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000005"
+            ]
+          }
+        ],
+        "checks": []
+      },
+      "expectedStates": [
+        "blocked_in_model"
+      ]
+    },
+    {
+      "name": "missing_primary_phone",
+      "inventory": [
+        {
+          "id": "item_account-00000001",
+          "service": "email",
+          "access": "password_mfa",
+          "recovery": "unknown",
+          "testedAt": null
+        }
+      ],
+      "continuity": {
+        "schema": "aeterna.phone-continuity.v1",
+        "primaryPhoneId": null,
+        "targetInventoryIds": [
+          "item_account-00000001"
+        ],
+        "resources": [
+          {
+            "id": "resource_00000002",
+            "kind": "account",
+            "inventoryId": "item_account-00000001",
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000005",
+            "kind": "offline",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          }
+        ],
+        "methods": [
+          {
+            "id": "method_00000001",
+            "targetId": "resource_00000002",
+            "purpose": "recovery",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000005"
+            ]
+          }
+        ],
+        "checks": []
+      },
+      "expectedStates": [
+        "unknown"
+      ]
+    },
+    {
+      "name": "missing_account_resource",
+      "inventory": [
+        {
+          "id": "item_account-00000001",
+          "service": "email",
+          "access": "password_mfa",
+          "recovery": "unknown",
+          "testedAt": null
+        }
+      ],
+      "continuity": {
+        "schema": "aeterna.phone-continuity.v1",
+        "primaryPhoneId": "resource_00000001",
+        "targetInventoryIds": [
+          "item_account-00000001"
+        ],
+        "resources": [
+          {
+            "id": "resource_00000001",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          }
+        ],
+        "methods": [],
+        "checks": []
+      },
+      "expectedStates": [
+        "unknown"
+      ]
+    }
+  ],
+  "canonical": [
+    {
+      "name": "independent_second_device",
+      "inventory": [
+        {
+          "id": "item_account-00000001",
+          "service": "email",
+          "access": "password_mfa",
+          "recovery": "unknown",
+          "testedAt": null
+        }
+      ],
+      "continuity": {
+        "schema": "aeterna.phone-continuity.v1",
+        "primaryPhoneId": "resource_00000001",
+        "targetInventoryIds": [
+          "item_account-00000001"
+        ],
+        "resources": [
+          {
+            "id": "resource_00000001",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000002",
+            "kind": "account",
+            "inventoryId": "item_account-00000001",
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000003",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          }
+        ],
+        "methods": [
+          {
+            "id": "method_00000001",
+            "targetId": "resource_00000002",
+            "purpose": "access",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000001"
+            ]
+          },
+          {
+            "id": "method_00000002",
+            "targetId": "resource_00000002",
+            "purpose": "recovery",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000003"
+            ]
+          }
+        ],
+        "checks": []
+      },
+      "targetInventoryId": "item_account-00000001",
+      "methodIds": [
+        "method_00000002"
+      ],
+      "basis": "[\"aeterna.phone-loss-basis.v1\",\"phone_unavailable\",\"resource_00000001\",\"item_account-00000001\",[[\"item_account-00000001\",\"email\",\"password_mfa\",\"unknown\"]],[[\"resource_00000002\",\"account\",\"item_account-00000001\",\"declared_ready\",\"methods\",true],[\"resource_00000003\",\"device\",null,\"declared_ready\",\"independent\",true]],[[\"method_00000002\",\"resource_00000002\",\"recovery\",\"declared_ready\",[\"resource_00000003\"]]]]",
+      "digest": "09db8ff9ea13c90570c676e7ec0321757ed6de7a68ee712d98dcedef673543f2"
+    },
+    {
+      "name": "offline_breaks_cycle",
+      "inventory": [
+        {
+          "id": "item_account-00000001",
+          "service": "email",
+          "access": "password_mfa",
+          "recovery": "unknown",
+          "testedAt": null
+        }
+      ],
+      "continuity": {
+        "schema": "aeterna.phone-continuity.v1",
+        "primaryPhoneId": "resource_00000001",
+        "targetInventoryIds": [
+          "item_account-00000001"
+        ],
+        "resources": [
+          {
+            "id": "resource_00000001",
+            "kind": "device",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000002",
+            "kind": "account",
+            "inventoryId": "item_account-00000001",
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000004",
+            "kind": "cloud",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "methods",
+            "methodsComplete": true
+          },
+          {
+            "id": "resource_00000005",
+            "kind": "offline",
+            "inventoryId": null,
+            "readiness": "declared_ready",
+            "mode": "independent",
+            "methodsComplete": true
+          }
+        ],
+        "methods": [
+          {
+            "id": "method_00000001",
+            "targetId": "resource_00000002",
+            "purpose": "recovery",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000004"
+            ]
+          },
+          {
+            "id": "method_00000002",
+            "targetId": "resource_00000004",
+            "purpose": "access",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000002"
+            ]
+          },
+          {
+            "id": "method_00000003",
+            "targetId": "resource_00000002",
+            "purpose": "recovery",
+            "readiness": "declared_ready",
+            "requires": [
+              "resource_00000005"
+            ]
+          }
+        ],
+        "checks": []
+      },
+      "targetInventoryId": "item_account-00000001",
+      "methodIds": [
+        "method_00000003"
+      ],
+      "basis": "[\"aeterna.phone-loss-basis.v1\",\"phone_unavailable\",\"resource_00000001\",\"item_account-00000001\",[[\"item_account-00000001\",\"email\",\"password_mfa\",\"unknown\"]],[[\"resource_00000002\",\"account\",\"item_account-00000001\",\"declared_ready\",\"methods\",true],[\"resource_00000005\",\"offline\",null,\"declared_ready\",\"independent\",true]],[[\"method_00000003\",\"resource_00000002\",\"recovery\",\"declared_ready\",[\"resource_00000005\"]]]]",
+      "digest": "2571d638eaecb72785e7996b31e5c971d1043e10ef04f7a8b2098a9dafb3bb62"
+    }
+  ]
+}

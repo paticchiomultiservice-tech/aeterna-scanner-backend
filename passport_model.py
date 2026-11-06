@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 import json
 import re
 import time
+from phone_continuity import validate_continuity, PASSPORT_SCHEMAS, GUARD
 
 
 MAX_PASSPORT_BYTES = 40000
@@ -29,6 +30,10 @@ FUTURE_KEYS = ("voice", "face", "style")
 EXTRAS = ("digitalLegacy", "continuity", "reputation", "accountRecovery", "familyAccess", "businessContinuity", "creatorProtection", "staffTraining", "brandMonitoring", "executiveShield", "vendorAccessReview", "crisisWarRoom", "boardReport")
 COUNTS = ("accountCritici", "social", "emailnum", "siti", "domini", "wallet", "cloud", "dispositivi", "collaboratori", "archiviDocumenti")
 EPOCH = "1970-01-01T00:00:00.000Z"
+
+
+class PassportSchemaUnsupported(ValueError):
+    pass
 
 
 def invalid():
@@ -207,8 +212,13 @@ def care(value, upper):
 
 
 def validate_passport(value):
-    exact(value, ("schema", "updatedAt", "journey", "inventory", "delegations", "care"))
-    choice(value["schema"], ("aeterna.passport.v3",))
+    if type(value) is not dict:
+        invalid()
+    if type(value.get("schema")) is str and value["schema"] not in PASSPORT_SCHEMAS:
+        raise PassportSchemaUnsupported("WORKSPACE_SCHEMA_UNSUPPORTED")
+    schema = choice(value.get("schema"), PASSPORT_SCHEMAS)
+    keys = ("schema", "updatedAt", "journey", "inventory", "delegations", "care")
+    exact(value, keys + (("continuity",) if schema == "aeterna.passport.v4" else ()))
     upper = timestamp(value["updatedAt"])
     # Match the durable gateway's server clock window exactly. Client clocks
     # may be up to five minutes ahead; arbitrary future proof dates are refused.
@@ -221,12 +231,23 @@ def validate_passport(value):
     items = records(value["inventory"], 12, inventory)
     if any(item["testedAt"] and not EPOCH <= item["testedAt"] <= upper for item in items):
         invalid()
-    result = {"schema": "aeterna.passport.v3", "updatedAt": upper, "journey": path,
+    result = {"schema": schema, "updatedAt": upper, "journey": path,
               "inventory": items, "delegations": records(value["delegations"], 8, delegation),
               "care": care(value["care"], upper)}
+    if schema == "aeterna.passport.v4":
+        result["continuity"] = validate_continuity(value["continuity"], items, upper)
     if len(json.dumps(result, ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode("utf-8")) > MAX_PASSPORT_BYTES:
         invalid()
     return result
+
+
+def validate_capabilities(value):
+    exact(value, ("ok", "passport_schemas", "phone_loss", "transition_guard"))
+    if value["ok"] is not True or value["phone_loss"] is not True or value["transition_guard"] != GUARD:
+        invalid()
+    if type(value["passport_schemas"]) is not list or value["passport_schemas"] != list(PASSPORT_SCHEMAS):
+        invalid()
+    return {"ok": True, "passport_schemas": list(PASSPORT_SCHEMAS), "phone_loss": True, "transition_guard": GUARD}
 
 
 def validate_workspace(value):
