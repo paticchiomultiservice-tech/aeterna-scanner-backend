@@ -12,7 +12,7 @@ const DAYS=[30,90,180,365];
 const CAPABILITY_GUARD='aeterna.phone-loss.v1';
 const button=(text,attrs='',primary=false)=>'<button type="button" class="core-button'+(primary?' core-primary':'')+'" '+attrs+'>'+h(text)+'</button>';
 const checkbox=(id,label,checked,attrs='')=>'<label class="core-check" for="'+h(id)+'"><input id="'+h(id)+'" type="checkbox" '+(checked?'checked ':'')+attrs+'>'+h(label)+'</label>';
-const select=(id,label,values,current,labels)=>'<label for="'+h(id)+'">'+h(label)+'</label><select id="'+h(id)+'">'+values.map(value=>'<option value="'+h(value)+'" '+(value===current?'selected':'')+'>'+h(typeof labels==='function'?labels(value):labels[value])+'</option>').join('')+'</select>';
+const select=(id,label,values,current,labels,help='')=>'<label for="'+h(id)+'">'+h(label)+'</label><select id="'+h(id)+'"'+(help?' aria-describedby="'+h(id)+'-help"':'')+'>'+values.map(value=>'<option value="'+h(value)+'" '+(value===current?'selected':'')+'>'+h(typeof labels==='function'?labels(value):labels[value])+'</option>').join('')+'</select>'+(help?'<p id="'+h(id)+'-help" class="phone-inline-help">'+h(help)+'</p>':'');
 export function phoneAccountLabel(passport,id,locale){
   const row=passport.inventory.find(item=>item.id===id);if(!row)return phoneCopy(locale).unknown;
   const group=passport.inventory.filter(item=>item.service===row.service);
@@ -22,6 +22,7 @@ export function phoneResourceLabel(passport,id,locale){
   const continuity=passport.continuity||blankContinuity(),row=continuity.resources.find(item=>item.id===id);
   if(!row)return phoneCopy(locale).unknown;
   if(row.kind==='account')return phoneAccountLabel(passport,row.inventoryId,locale);
+  if(row.id===continuity.primaryPhoneId)return phoneCopy(locale).plain.phoneLabel;
   return phoneCopy(locale).kinds[row.kind]+' '+(continuity.resources.filter(item=>item.kind===row.kind).findIndex(item=>item.id===id)+1);
 }
 function methodsFor(c,id){return c.methods.filter(item=>item.targetId===id);}
@@ -71,12 +72,13 @@ export function createPhonePanel({
     return '<p class="core-small" data-phone-session-state>'+h(s.enabled&&s.state==='saved'&&!s.pending?cp().remote:cp().local)+'</p>';
   }
   function heading(title,help,step){
-    return '<div class="core-section-heading"><p class="core-eyebrow">'+h(cp().title)+(step?' · '+h(cp().step)+' '+step+' '+h(cp().of)+' 4':'')+'</p><h4 id="phone-view-title" tabindex="-1">'+h(title)+'</h4>'+(help?'<p>'+h(help)+'</p>':'')+'</div>';
+    const progress=step?'<ol class="phone-step-list" aria-label="'+h(cp().plain.stepsTitle)+'">'+cp().plain.steps.map((label,index)=>'<li'+(index+1===step?' aria-current="step"':'')+'><span>'+String(index+1)+'</span> '+h(label)+'</li>').join('')+'</ol>':'';
+    return progress+'<div class="core-section-heading"><p class="core-eyebrow">'+h(cp().title)+(step?' · '+h(cp().step)+' '+step+' '+h(cp().of)+' 4':'')+'</p><h4 id="phone-view-title" tabindex="-1">'+h(title)+'</h4>'+(help?'<p>'+h(help)+'</p>':'')+'</div>';
   }
   function welcome(){
     const capability=getCapabilities(),checking=capability?.state==='loading';
     return heading(cp().title,cp().intro)+
-      '<p>'+h(cp().scope)+'</p><p>'+h(cp().legacyProofNote)+'</p>'+
+      '<aside class="phone-example"><h5>'+h(cp().plain.exampleTitle)+'</h5><p>'+h(cp().plain.example)+'</p></aside><p>'+h(cp().plain.startHelp)+'</p><p>'+h(cp().scope)+'</p><details class="core-secondary"><summary>'+h(cp().plain.optionalDetails)+'</summary><p>'+h(cp().legacyProofNote)+'</p></details>'+
       (checking?'<p role="status">'+h(cp().checking)+'</p>':'')+
       '<div class="core-actions">'+button(cp().entry,'data-phone-start'+(ui.pending?' disabled':''),true)+'</div>';
   }
@@ -84,38 +86,38 @@ export function createPhonePanel({
     if(ui.targetDraft===null)ui.targetDraft=[...c().targetInventoryIds];
     const ids=ui.targetDraft.filter(id=>p().inventory.some(row=>row.id===id));
     if(!p().inventory.length)return heading(cp().targetsTitle,cp().targetsHelp,1)+'<p>'+h(cp().targetsEmpty)+'</p>'+button(cp().openInventory,'data-phone-inventory');
-    return heading(cp().targetsTitle,cp().targetsHelp,1)+'<form id="phone-target-form"><fieldset><legend>'+h(cp().targetsTitle)+'</legend>'+p().inventory.map((row,i)=>checkbox('phone-target-'+i,phoneAccountLabel(p(),row.id,lang()),ids.includes(row.id),'data-phone-target="'+h(row.id)+'"')).join('')+'</fieldset><ol class="phone-selected">'+ids.map((id,i)=>'<li><span>'+h(phoneAccountLabel(p(),id,lang()))+'</span><div class="core-actions">'+button(cp().moveUp,'data-phone-move="'+h(id)+'" data-direction="-1"'+(i===0?' disabled':''))+button(cp().moveDown,'data-phone-move="'+h(id)+'" data-direction="1"'+(i===ids.length-1?' disabled':''))+'</div></li>').join('')+'</ol><div class="core-actions">'+button(cp().back,'data-phone-step="welcome"')+'<button class="core-button core-primary" type="submit">'+h(cp().next)+'</button></div></form>';
+    return heading(cp().targetsTitle,cp().targetsHelp,1)+'<form id="phone-target-form"><fieldset aria-describedby="phone-targets-help"><legend>'+h(cp().targetsTitle)+'</legend><p id="phone-targets-help" class="phone-inline-help">'+h(cp().plain.targetHelp)+'</p>'+p().inventory.map((row,i)=>checkbox('phone-target-'+i,phoneAccountLabel(p(),row.id,lang()),ids.includes(row.id),'data-phone-target="'+h(row.id)+'"')).join('')+'</fieldset><details class="core-secondary"><summary>'+h(cp().plain.priorityTitle)+'</summary><p>'+h(cp().plain.priorityHelp)+'</p><ol class="phone-selected">'+ids.map((id,i)=>'<li><span>'+h(phoneAccountLabel(p(),id,lang()))+'</span><div class="core-actions">'+button(cp().moveUp,'data-phone-move="'+h(id)+'" data-direction="-1"'+(i===0?' disabled':''))+button(cp().moveDown,'data-phone-move="'+h(id)+'" data-direction="1"'+(i===ids.length-1?' disabled':''))+'</div></li>').join('')+'</ol></details><div class="core-actions">'+button(cp().back,'data-phone-step="welcome"')+'<button class="core-button core-primary" type="submit">'+h(cp().next)+'</button></div></form>';
   }
   function phone(){
     if(ui.phoneDraft===null)ui.phoneDraft=c().primaryPhoneId||'';
     const devices=c().resources.filter(row=>row.kind==='device');
     return heading(cp().phoneTitle,cp().phoneHelp,2)+'<form id="phone-primary-form">'+
-      select('phone-primary',cp().phoneTitle,['',...devices.map(row=>row.id)],ui.phoneDraft,value=>value?phoneResourceLabel(p(),value,lang()):cp().unknown)+
+      select('phone-primary',cp().phoneTitle,['',...devices.map(row=>row.id)],ui.phoneDraft,value=>value?phoneResourceLabel(p(),value,lang()):cp().unknown,cp().plain.phoneChoiceHelp)+
       '<div class="core-actions">'+button(cp().addPhone,'data-phone-add-primary')+button(cp().back,'data-phone-step="targets"')+'<button type="submit" class="core-button core-primary">'+h(cp().next)+'</button></div></form>';
   }
   function resourceForm(row,{account=false}={}){
     const draft=ui.resourceDraft||row,options=account||draft.kind==='account'?['unknown','methods']:MODES;
-    return '<form id="phone-resource-form">'+(!account?select('phone-resource-kind',cp().kind,KINDS,draft.kind,value=>cp().kinds[value]):'')+
-      (draft.kind==='account'&&!account?select('phone-resource-inventory',cp().accountResource,p().inventory.map(item=>item.id),draft.inventoryId||p().inventory[0]?.id,id=>phoneAccountLabel(p(),id,lang())):'')+
-      select('phone-resource-ready',cp().resourceReady,RESOURCE_STATES,draft.readiness,labels())+
-      select('phone-resource-mode',cp().mode,options,draft.mode,value=>cp()[value==='independent'?'modeIndependent':value==='methods'?'modeMethods':'modeUnknown'])+
+    return '<form id="phone-resource-form">'+(!account?select('phone-resource-kind',cp().kind,KINDS,draft.kind,value=>cp().kinds[value],cp().plain.kindHelp):'')+
+      (draft.kind==='account'&&!account?select('phone-resource-inventory',cp().accountResource,p().inventory.map(item=>item.id),draft.inventoryId||p().inventory[0]?.id,id=>phoneAccountLabel(p(),id,lang()),cp().plain.accountHelp):'')+
+      select('phone-resource-ready',cp().resourceReady,RESOURCE_STATES,draft.readiness,labels(),cp().plain.readyHelp)+
+      select('phone-resource-mode',cp().mode,options,draft.mode,value=>cp()[value==='independent'?'modeIndependent':value==='methods'?'modeMethods':'modeUnknown'],cp().plain.modeHelp)+
       (draft.mode==='independent'?checkbox('phone-independent-confirm',cp().independentConfirm,Boolean(draft.confirmed)):'')+
-      (draft.mode==='methods'?checkbox('phone-resource-complete',cp().complete,Boolean(draft.methodsComplete))+'<p class="core-small">'+h(cp().completeHelp)+'</p>':'')+
-      '<div class="core-actions"><button type="submit" class="core-button core-primary">'+h(cp().save)+'</button>'+(!account?button(ui.resourceId?cp().back:cp().cancel,'data-phone-resource-cancel'):'')+'</div></form>';
+      (draft.mode==='methods'?checkbox('phone-resource-complete',cp().complete,Boolean(draft.methodsComplete))+'<p class="phone-inline-help">'+h(cp().completeHelp)+' '+h(cp().plain.completeHelp)+'</p>':'')+
+      '<div class="core-actions"><button type="submit" class="core-button'+(account?'':' core-primary')+'">'+h(cp().save)+'</button>'+(!account?button(ui.resourceId?cp().back:cp().cancel,'data-phone-resource-cancel'):'')+'</div></form>';
   }
   function methodList(targetId){
     const methods=methodsFor(c(),targetId);
     return '<h5>'+h(cp().methodsTitle)+'</h5>'+(methods.length?'<ul class="phone-method-list">'+methods.map(method=>'<li><div><strong>'+h(cp().purposes[method.purpose])+'</strong> · '+h(labels()[method.readiness])+'<p>'+h(cp().requires)+': '+method.requires.map(id=>h(phoneResourceLabel(p(),id,lang()))).join(' + ')+'</p></div><div class="core-actions">'+button(cp().edit,'data-phone-edit-method="'+h(method.id)+'"')+button(cp().remove,'data-phone-remove-method="'+h(method.id)+'"')+'</div></li>').join('')+'</ul>':'<p>'+h(cp().noMethods)+'</p>')+button(cp().addMethod,'data-phone-add-method="'+h(targetId)+'"');
   }
   function resourceList(){
-    return '<details class="core-secondary phone-resource-details" data-phone-resources'+(ui.resourcesOpen?' open':'')+'><summary>'+h(cp().resourcesTitle)+'</summary><ul>'+c().resources.map(row=>'<li><strong>'+h(phoneResourceLabel(p(),row.id,lang()))+'</strong> · '+h(labels()[row.readiness])+'<div class="core-actions">'+button(cp().edit,'data-phone-edit-resource="'+h(row.id)+'"')+button(cp().remove,'data-phone-remove-resource="'+h(row.id)+'"')+'</div></li>').join('')+'</ul>'+button(cp().addResource,'data-phone-add-resource')+'</details>';
+    return '<details class="core-secondary phone-resource-details" data-phone-resources'+(ui.resourcesOpen?' open':'')+'><summary>'+h(cp().resourcesTitle)+'</summary><p class="phone-inline-help">'+h(cp().plain.resourceNamesHelp)+'</p><ul>'+c().resources.map(row=>'<li><strong>'+h(phoneResourceLabel(p(),row.id,lang()))+'</strong> · '+h(labels()[row.readiness])+'<div class="core-actions">'+button(cp().edit,'data-phone-edit-resource="'+h(row.id)+'"')+button(cp().remove,'data-phone-remove-resource="'+h(row.id)+'"')+'</div></li>').join('')+'</ul>'+button(cp().addResource,'data-phone-add-resource')+'</details>';
   }
   function account(){
     const target=cardTitle();if(!target)return targets();
     const row=ui.accountDrafts[target]||accountResource(target)||(ui.resourceDraft?.kind==='account'&&ui.resourceDraft.inventoryId===target?ui.resourceDraft:freshAccount(target));
     if(!ui.resourceDraft||ui.resourceDraft.id!==row.id)ui.resourceDraft=clone(row);
     return heading(cp().accountTitle,phoneAccountLabel(p(),target,lang()),3)+'<p>'+h(cp().accessQuestion)+'</p><p>'+h(cp().alternativeQuestion)+'</p><p>'+h(cp().dependencyQuestion)+'</p><p class="core-small">'+h(cp().accountHelp)+'</p>'+
-      resourceForm(row,{account:true})+(accountResource(target)?methodList(row.id):'')+resourceList()+
+      resourceForm(row,{account:true})+(accountResource(target)?methodList(row.id):'<p class="phone-inline-help">'+h(cp().plain.saveFirst)+'</p>')+resourceList()+
       '<div class="core-actions">'+button(cp().back,'data-phone-account-back')+button(ui.accountIndex<c().targetInventoryIds.length-1?cp().finishAccount:cp().saveAndSimulate,'data-phone-account-next',true)+'</div>';
   }
   function resource(){
@@ -127,9 +129,9 @@ export function createPhonePanel({
     const row=ui.methodDraft;
     if(!row)return account();
     return heading(cp().methodTitle,phoneResourceLabel(p(),ui.methodTarget,lang()),3)+
-      '<form id="phone-method-form">'+select('phone-method-purpose',cp().purpose,['access','recovery'],row.purpose,value=>cp().purposes[value])+
-      select('phone-method-ready',cp().methodReady,METHOD_STATES,row.readiness,labels())+
-      '<fieldset><legend>'+h(cp().requires)+'</legend><p class="core-small">'+h(cp().requiresHelp)+'</p>'+c().resources.map((res,i)=>checkbox('phone-require-'+i,phoneResourceLabel(p(),res.id,lang()),row.requires.includes(res.id),'data-phone-require="'+h(res.id)+'"')).join('')+'</fieldset>'+
+      '<form id="phone-method-form">'+select('phone-method-purpose',cp().purpose,['access','recovery'],row.purpose,value=>cp().purposes[value],cp().plain.purposeHelp)+
+      select('phone-method-ready',cp().methodReady,METHOD_STATES,row.readiness,labels(),cp().plain.methodReadyHelp)+
+      '<fieldset aria-describedby="phone-requires-help"><legend>'+h(cp().requires)+'</legend><p id="phone-requires-help" class="phone-inline-help">'+h(cp().requiresHelp)+' '+h(cp().plain.requirementsHelp)+'</p>'+c().resources.map((res,i)=>checkbox('phone-require-'+i,phoneResourceLabel(p(),res.id,lang()),row.requires.includes(res.id),'data-phone-require="'+h(res.id)+'"')).join('')+'</fieldset>'+
       '<div class="core-actions"><button type="submit" class="core-button core-primary">'+h(cp().saveMethod)+'</button>'+button(cp().cancel,'data-phone-method-cancel')+'</div></form>';
   }
   function resultDetails(result){
@@ -160,8 +162,8 @@ export function createPhonePanel({
     const stable=canDeclare();
     return heading(cp().proofTitle,phoneAccountLabel(p(),prepared.inventoryId,lang()))+'<p>'+h(cp().proofIntro)+'</p>'+renderPhoneRoute(p(),{...found,methodIds:prepared.methodIds},lang())+
       '<p class="core-note">'+h(cp().limits)+'</p>'+(!stable?'<p role="status">'+h(cp().proofNeedSave)+'</p>':'')+
-      '<form id="phone-proof-form">'+checkbox('phone-proof-confirm',cp().proofConfirm,Boolean(prepared.confirmed),stable?'':'disabled')+
-      select('phone-proof-days',cp().reviewDays,DAYS,prepared.days,value=>value+' '+cp().days)+
+      '<form id="phone-proof-form">'+checkbox('phone-proof-confirm',cp().proofConfirm,Boolean(prepared.confirmed),'aria-describedby="phone-proof-help" '+(stable?'':'disabled'))+'<p id="phone-proof-help" class="phone-inline-help">'+h(cp().plain.proofHelp)+'</p>'+
+      select('phone-proof-days',cp().reviewDays,DAYS,prepared.days,value=>value+' '+cp().days,cp().plain.reviewHelp)+
       '<div class="core-actions"><button class="core-button core-primary" type="submit" name="outcome" value="declared_success" '+(!stable?'disabled':'')+'>'+h(cp().proofSuccess)+'</button><button class="core-button" type="submit" name="outcome" value="declared_failure" '+(!stable?'disabled':'')+'>'+h(cp().proofFailure)+'</button>'+button(cp().editMap,'data-phone-step="targets"')+button(cp().back,'data-phone-step="result"')+'</div></form>';
   }
   function render(){
@@ -199,7 +201,7 @@ export function createPhonePanel({
     if(!resource)throw Error('invalid');
     resource.mode='methods';
     if(idx<0){if(next.methods.length>=48)throw Error('limit');next.methods.push(value);}else next.methods[idx]=value;
-    if(resource.kind==='account')delete ui.accountDrafts[resource.inventoryId];ui.resourceDraft=null;changed(next,ui.returnStep);
+    if(resource.kind==='account')delete ui.accountDrafts[resource.inventoryId];ui.resourceDraft=ui.returnStep==='resource'?clone(resource):null;changed(next,ui.returnStep);
   }
   function openResource(id){
     const row=id?c().resources.find(item=>item.id===id):null;

@@ -7,4 +7,178 @@ const pt={ui:{initial:'Comece com calma: ainda não tem uma cópia deste percurs
 const questions={it:'A che punto sei con questo passaggio?',en:'How far have you got with this step?',fr:'Où en êtes-vous à cette étape ?',es:'¿En qué punto estás con este paso?',pt:'Em que ponto está neste passo?'};
 const terms={it:{cloud:'Cloud',backup:'Copia di riserva',referent:'Persona di fiducia',permission:'Permesso',recovery:'Recupero dell’accesso'},en:{cloud:'Cloud',backup:'Backup',referent:'Trusted person',permission:'Permission',recovery:'Account recovery'},fr:{cloud:'Cloud',backup:'Copie de secours',referent:'Personne de confiance',permission:'Permission',recovery:'Récupération du compte'},es:{cloud:'Nube',backup:'Copia de seguridad',referent:'Persona de confianza',permission:'Permiso',recovery:'Recuperación de acceso'},pt:{cloud:'Nuvem',backup:'Cópia de segurança',referent:'Pessoa de confiança',permission:'Permissão',recovery:'Recuperação de acesso'}};
 for(const [lang,c]of Object.entries({it,en,fr,es,pt})){c.ui.stateQuestion=questions[lang];c.terms=terms[lang];}
+// Plain-language field guidance. No new permissions or data fields.
+const PLAIN_FORMS={
+  "it": {
+    "inventory": {
+      "serviceLabel": "Quale servizio vuoi preparare?",
+      "serviceHelp": "Scegli il tipo di servizio. Esempio: per la tua posta scegli “Email principale”. Qui non scrivere indirizzi o password.",
+      "accessLabel": "Come entri di solito?",
+      "accessHelp": "Pensa all'ultima volta che hai aperto quel servizio. Hai usato una password, una chiave di accesso o anche un codice? Se non ricordi, scegli “Non lo so ancora”.",
+      "recoveryLabel": "Se non riesci più a entrare, che altra strada hai?",
+      "recoveryHelp": "Indica dove troveresti aiuto. Esempio: un altro telefono che puoi aprire senza quello perso. Scrivi solo il tipo di alternativa, mai i codici.",
+      "testedLabel": "Ho già provato questa strada",
+      "testedHelp": "Spunta solo se hai fatto davvero una prova e sai quale servizio riguardava. Se hai solo letto le istruzioni o non sei sicuro, lascia vuoto.",
+      "saveHelp": "Le scelte restano in questa pagina. Per ritrovarle dopo, salva il Passaporto o attiva il salvataggio nel profilo quando disponibile.",
+      "startExample": "Esempio: parto dalla mia email. Scelgo come entro e dove troverei aiuto se perdessi il telefono. Non devo conoscere tutto subito."
+    },
+    "ai": {
+      "agentHelp": "Scegli l'app che usi, per esempio ChatGPT. Se non c'è nell'elenco, scegli “Altro servizio”.",
+      "purposeHelp": "Scegli per che cosa la usi: vita personale, famiglia, lavoro o attività creativa.",
+      "readHelp": "Leggere: vedere informazioni. Spunta solo se hai controllato nell'app che questo uso sia consentito.",
+      "draftHelp": "Preparare una bozza: scrivere qualcosa che tu leggi prima di usarlo. Non significa inviare il testo.",
+      "actionHelp": "Agire fuori dall'app: per esempio inviare un messaggio o modificare un file. Controlla il permesso nel servizio originale.",
+      "confirmationHelp": "Prima di un'azione importante deve intervenire una persona. Questa scheda non applica da sola quel controllo.",
+      "untilHelp": "Facoltativo. Indica quando vorresti ricontrollare o terminare l'aiuto. La data qui non fa scadere un permesso nell'app.",
+      "stateHelp": "Se non hai ancora controllato l'app, scegli “Da controllare”. Annota una revoca solo dopo averla eseguita nel servizio originale."
+    },
+    "protocol": {
+      "stateHelp": "Scegli ciò che hai fatto davvero. “Preparato” significa che hai organizzato il necessario. “Provato” significa che hai anche fatto una prova. Se non sai, parti da “Da fare”."
+    },
+    "concepts": {
+      "passport": "Il Passaporto è il tuo elenco di istruzioni: che cosa usi, come entri e chi può aiutarti.",
+      "capsule": "La Capsula è una scheda breve da portare con te o stampare. Chi la trova può leggere i dati che scegli di mostrarci.",
+      "phone": "“Domani senza telefono” è una prova guidata sulla carta: immagini di non avere il telefono e controlli quali alternative hai.",
+      "cards": "Una scheda di continuità riguarda un servizio alla volta, per esempio la posta. Non contiene la password.",
+      "next": "Parti da un servizio importante. Se una domanda è difficile, scegli “Non lo so ancora” e torna dopo: non devi indovinare."
+    }
+  },
+  "en": {
+    "inventory": {
+      "serviceLabel": "Which service do you want to prepare?",
+      "serviceHelp": "Choose the type of service. For your email, choose “Main email”. Do not enter addresses or passwords here.",
+      "accessLabel": "How do you usually sign in?",
+      "accessHelp": "Think about the last time you opened this service. Did you use a password, a passkey or another code too? Choose “I do not know yet” if unsure.",
+      "recoveryLabel": "If you cannot sign in, what other route do you have?",
+      "recoveryHelp": "Choose where you would find help. For example: another phone you can unlock without the lost one. Record the type of alternative, never the codes.",
+      "testedLabel": "I have already tried this route",
+      "testedHelp": "Tick only after a real test for this service. Leave it unticked if you only read the instructions or are unsure.",
+      "saveHelp": "Choices stay in this page. To find them later, save the Passport or turn on profile saving when available.",
+      "startExample": "Example: start with your email. Choose how you sign in and where you would find help after losing your phone. You do not need every answer now."
+    },
+    "ai": {
+      "agentHelp": "Choose the app you use, such as ChatGPT. If it is not listed, choose “Other service”.",
+      "purposeHelp": "Choose what you use it for: personal life, family, work or creative activity.",
+      "readHelp": "Read: see information. Tick only if you checked in the app that this use is allowed.",
+      "draftHelp": "Prepare a draft: write something for you to review. This does not mean sending it.",
+      "actionHelp": "Act outside the app: for example send a message or change a file. Check the permission in the original service.",
+      "confirmationHelp": "A person must step in before an important action. This card does not enforce that check.",
+      "untilHelp": "Optional. Choose when you want to review or end the help. A date here does not expire a permission in the app.",
+      "stateHelp": "Choose “To check” if you have not checked the app. Record removal only after removing permission in the original service."
+    },
+    "protocol": {
+      "stateHelp": "Choose what you actually did. “Prepared” means you organised what is needed. “Tried” means you also ran a test. Start with “To do” if unsure."
+    },
+    "concepts": {
+      "passport": "The Passport is your instruction list: what you use, how you sign in and who may help.",
+      "capsule": "The Capsule is a short card to carry or print. Anyone finding it can read the details you choose to show.",
+      "phone": "“Without my phone” is a guided paper exercise: imagine the phone is missing and check your other routes.",
+      "cards": "Each continuity card covers one service, such as email. It does not hold your password.",
+      "next": "Start with one important service. If a question is difficult, choose “I do not know yet” and return later. Do not guess."
+    }
+  },
+  "fr": {
+    "inventory": {
+      "serviceLabel": "Quel service voulez-vous préparer ?",
+      "serviceHelp": "Choisissez le type de service. Pour votre messagerie, choisissez “E-mail principal”. Ne saisissez ni adresse ni mot de passe ici.",
+      "accessLabel": "Comment vous connectez-vous d'habitude ?",
+      "accessHelp": "Pensez à la dernière connexion : mot de passe, clé d'accès ou code supplémentaire ? Choisissez “Je ne sais pas encore” si vous hésitez.",
+      "recoveryLabel": "Si la connexion ne marche plus, quelle autre solution avez-vous ?",
+      "recoveryHelp": "Indiquez où trouver de l'aide. Exemple : un autre téléphone que vous pouvez ouvrir sans celui qui manque. Notez le type de solution, jamais les codes.",
+      "testedLabel": "J'ai déjà essayé cette solution",
+      "testedHelp": "Cochez seulement après un vrai essai pour ce service. Laissez vide si vous avez seulement lu les instructions ou si vous hésitez.",
+      "saveHelp": "Les choix restent dans cette page. Pour les retrouver plus tard, enregistrez le Passeport ou activez l'enregistrement dans le profil si disponible.",
+      "startExample": "Exemple : commencez par votre messagerie. Choisissez comment vous entrez et où trouver de l'aide sans votre téléphone. Toutes les réponses ne sont pas nécessaires maintenant."
+    },
+    "ai": {
+      "agentHelp": "Choisissez l'application utilisée, par exemple ChatGPT. Si elle manque, choisissez “Autre service”.",
+      "purposeHelp": "Choisissez son usage : vie personnelle, famille, travail ou création.",
+      "readHelp": "Lire : voir des informations. Cochez seulement après avoir vérifié cette permission dans l'application.",
+      "draftHelp": "Préparer un brouillon : écrire un texte que vous vérifiez. Cela ne signifie pas l'envoyer.",
+      "actionHelp": "Agir ailleurs : envoyer un message ou modifier un fichier, par exemple. Vérifiez la permission dans le service d'origine.",
+      "confirmationHelp": "Une personne doit intervenir avant une action importante. Cette fiche n'impose pas ce contrôle.",
+      "untilHelp": "Facultatif. Indiquez quand revoir ou terminer l'aide. La date inscrite ici ne fait pas expirer une permission dans l'application.",
+      "stateHelp": "Choisissez “À vérifier” si vous n'avez pas contrôlé l'application. Notez un retrait seulement après l'avoir fait dans le service d'origine."
+    },
+    "protocol": {
+      "stateHelp": "Choisissez ce que vous avez vraiment fait. “Préparé” signifie avoir organisé le nécessaire. “Essayé” signifie avoir fait aussi un essai. Si vous hésitez, commencez par “À faire”."
+    },
+    "concepts": {
+      "passport": "Le Passeport est votre liste d'instructions : ce que vous utilisez, comment vous entrez et qui peut aider.",
+      "capsule": "La Capsule est une fiche courte à emporter ou imprimer. Toute personne qui la trouve peut lire les détails que vous choisissez.",
+      "phone": "“Sans mon téléphone” est un exercice guidé sur papier : imaginez le téléphone absent et cherchez les autres solutions.",
+      "cards": "Chaque fiche de continuité concerne un service, comme la messagerie. Elle ne contient pas votre mot de passe.",
+      "next": "Commencez par un service important. Si une question est difficile, choisissez “Je ne sais pas encore” et revenez plus tard, sans deviner."
+    }
+  },
+  "es": {
+    "inventory": {
+      "serviceLabel": "¿Qué servicio quieres preparar?",
+      "serviceHelp": "Elige el tipo de servicio. Para tu correo, elige “Correo principal”. No escribas direcciones ni contraseñas aquí.",
+      "accessLabel": "¿Cómo entras normalmente?",
+      "accessHelp": "Piensa en la última vez: ¿usaste una contraseña, una clave de acceso o también otro código? Elige “Todavía no lo sé” si dudas.",
+      "recoveryLabel": "Si no puedes entrar, ¿qué otra opción tienes?",
+      "recoveryHelp": "Indica dónde buscarías ayuda. Por ejemplo: otro teléfono que puedes abrir sin el perdido. Anota el tipo de alternativa, nunca los códigos.",
+      "testedLabel": "Ya he probado esta opción",
+      "testedHelp": "Marca solo después de una prueba real de este servicio. Déjalo sin marcar si solo leíste las instrucciones o no estás seguro.",
+      "saveHelp": "Las opciones quedan en esta página. Para encontrarlas después, guarda el Pasaporte o activa el guardado en el perfil cuando esté disponible.",
+      "startExample": "Ejemplo: empieza por tu correo. Elige cómo entras y dónde buscarías ayuda sin tu teléfono. No necesitas saberlo todo ahora."
+    },
+    "ai": {
+      "agentHelp": "Elige la app que usas, por ejemplo ChatGPT. Si no aparece, elige “Otro servicio”.",
+      "purposeHelp": "Elige para qué la usas: vida personal, familia, trabajo o creación.",
+      "readHelp": "Leer: ver información. Marca solo si has comprobado este permiso en la app.",
+      "draftHelp": "Preparar un borrador: escribir algo que tú revisas. No significa enviarlo.",
+      "actionHelp": "Actuar fuera de la app: enviar un mensaje o cambiar un archivo, por ejemplo. Comprueba el permiso en el servicio original.",
+      "confirmationHelp": "Una persona debe intervenir antes de una acción importante. Esta ficha no aplica ese control.",
+      "untilHelp": "Opcional. Indica cuándo quieres revisar o terminar la ayuda. Esta fecha no hace caducar un permiso de la app.",
+      "stateHelp": "Elige “Por comprobar” si no revisaste la app. Anota una retirada solo después de hacerla en el servicio original."
+    },
+    "protocol": {
+      "stateHelp": "Elige lo que has hecho de verdad. “Preparado” significa organizar lo necesario. “Probado” significa hacer también una prueba. Si dudas, empieza por “Por hacer”."
+    },
+    "concepts": {
+      "passport": "El Pasaporte es tu lista de instrucciones: qué usas, cómo entras y quién puede ayudar.",
+      "capsule": "La Cápsula es una ficha breve para llevar o imprimir. Quien la encuentre puede leer los datos que eliges mostrar.",
+      "phone": "“Sin mi teléfono” es un ejercicio guiado sobre papel: imagina que falta y busca otras opciones.",
+      "cards": "Cada ficha de continuidad trata un servicio, como el correo. No contiene tu contraseña.",
+      "next": "Empieza por un servicio importante. Si una pregunta es difícil, elige “Todavía no lo sé” y vuelve después. No adivines."
+    }
+  },
+  "pt": {
+    "inventory": {
+      "serviceLabel": "Que serviço quer preparar?",
+      "serviceHelp": "Escolha o tipo de serviço. Para o seu email, escolha “E-mail principal”. Não escreva endereços nem palavras-passe aqui.",
+      "accessLabel": "Como entra normalmente?",
+      "accessHelp": "Pense na última vez: usou palavra-passe, chave de acesso ou também outro código? Escolha “Ainda não sei” se tiver dúvidas.",
+      "recoveryLabel": "Se não conseguir entrar, que outra opção tem?",
+      "recoveryHelp": "Indique onde encontraria ajuda. Exemplo: outro telefone que pode abrir sem o perdido. Registe o tipo de alternativa, nunca os códigos.",
+      "testedLabel": "Já experimentei esta opção",
+      "testedHelp": "Assinale só depois de um teste real deste serviço. Deixe por assinalar se apenas leu as instruções ou tem dúvidas.",
+      "saveHelp": "As escolhas ficam nesta página. Para as encontrar depois, guarde o Passaporte ou ative a gravação no perfil quando disponível.",
+      "startExample": "Exemplo: comece pelo email. Escolha como entra e onde encontraria ajuda sem o telefone. Não precisa de saber tudo agora."
+    },
+    "ai": {
+      "agentHelp": "Escolha a app que usa, por exemplo ChatGPT. Se não aparecer, escolha “Outro serviço”.",
+      "purposeHelp": "Escolha para que a usa: vida pessoal, família, trabalho ou criação.",
+      "readHelp": "Ler: ver informações. Assinale só se verificou esta permissão na app.",
+      "draftHelp": "Preparar um rascunho: escrever algo que irá rever. Não significa enviá-lo.",
+      "actionHelp": "Agir fora da app: enviar uma mensagem ou alterar um ficheiro, por exemplo. Verifique a permissão no serviço original.",
+      "confirmationHelp": "Uma pessoa deve intervir antes de uma ação importante. Esta ficha não aplica esse controlo.",
+      "untilHelp": "Opcional. Indique quando quer rever ou terminar a ajuda. Esta data não faz expirar uma permissão da app.",
+      "stateHelp": "Escolha “Por verificar” se não reviu a app. Registe uma retirada só depois de a fazer no serviço original."
+    },
+    "protocol": {
+      "stateHelp": "Escolha o que fez realmente. “Preparado” significa organizar o necessário. “Testado” significa fazer também um teste. Em caso de dúvida, comece por “Por fazer”."
+    },
+    "concepts": {
+      "passport": "O Passaporte é a sua lista de instruções: o que usa, como entra e quem pode ajudar.",
+      "capsule": "A Cápsula é uma ficha curta para levar ou imprimir. Quem a encontrar pode ler os dados que escolhe mostrar.",
+      "phone": "“Sem o meu telefone” é um exercício guiado em papel: imagine que falta e procure outras opções.",
+      "cards": "Cada ficha de continuidade trata um serviço, como o email. Não contém a sua palavra-passe.",
+      "next": "Comece por um serviço importante. Se uma pergunta for difícil, escolha “Ainda não sei” e volte depois. Não adivinhe."
+    }
+  }
+};
+for(const [lang,copy]of Object.entries({it,en,fr,es,pt}))copy.forms=PLAIN_FORMS[lang];
 export const LEARNING_COPY=Object.freeze({it,en,fr,es,pt});

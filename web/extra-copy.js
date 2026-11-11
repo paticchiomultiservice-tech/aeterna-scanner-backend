@@ -414,4 +414,233 @@ const pt = {
   delegationStates: {planned: 'Por documentar', declared: 'Declarada pelo cliente', withdrawn: 'Revogação declarada pelo cliente'}
 };
 
+// Explanations changed; catalogue and data enums are unchanged.
+const PLAIN_EXTRA={
+  "it": {
+    "ui": {
+      "passportLead": "Il Passaporto è il tuo elenco di istruzioni. Ti ricorda che cosa usi, come entri e chi può aiutarti. Comincia da un solo servizio, per esempio la tua email.",
+      "passportFuture": "Aggiornalo se cambi telefono, email o persona di fiducia. Così le istruzioni seguono la tua vita. Il Passaporto non dà accesso agli account e non sostituisce un testamento.",
+      "inventoryTitle": "Le tue schede di continuità",
+      "inventoryIntro": "Una scheda è un promemoria per un solo servizio: come entri e quale altra strada hai se qualcosa manca. Scegli le risposte che conosci. “Non lo so ancora” va bene.",
+      "serviceLabel": "Quale servizio vuoi preparare?",
+      "accessLabel": "Come entri di solito?",
+      "recoveryLabel": "Che altra strada hai se non riesci a entrare?",
+      "testLabel": "Ho già provato questa strada",
+      "saveItem": "Tieni queste scelte nella pagina",
+      "emptyInventory": "Non hai ancora schede. Puoi iniziare dalla tua email, senza sapere già tutte le risposte.",
+      "aiTitle": "Le app AI che usi",
+      "aiIntro": "Un'app AI può aiutarti a scrivere o leggere informazioni. Qui annoti solo ciò che sai dei suoi permessi. Per dare o togliere un permesso devi usare l'app originale.",
+      "agentLabel": "Quale app usi?",
+      "purposeLabel": "Per che cosa la usi?",
+      "readLabel": "Ho controllato che possa leggere informazioni",
+      "draftLabel": "Ho controllato che possa preparare bozze",
+      "actionLabel": "Ho controllato che possa agire fuori dall'app",
+      "confirmationLabel": "Prima di un'azione importante serve la conferma di una persona. Questa scheda non applica il controllo nell'app.",
+      "untilLabel": "Quando vuoi ricontrollare questo aiuto? (facoltativo)",
+      "stateLabel": "Hai già controllato i permessi nell'app?",
+      "withdrawOnly": "Per togliere un permesso, apri l'app originale e controlla il risultato. Cambiare questa scheda non lo toglie.",
+      "simulatorLead": "Immagina un imprevisto e guarda quali altre strade hai. È un esercizio guidato: qui non spegniamo telefoni e non proviamo a entrare nei tuoi account.",
+      "readable": "Scarica il Passaporto da leggere o stampare",
+      "resume": "Salva una copia per continuare dopo (JSON)",
+      "importDocument": "Continua da un Passaporto già salvato"
+    },
+    "access": {
+      "password_mfa": "Password e un'altra conferma",
+      "provider": "Un altro metodo del servizio"
+    },
+    "recovery": {
+      "same_device": "Mi serve lo stesso telefono o dispositivo",
+      "other_device": "Posso usare un altro dispositivo",
+      "offline": "Ho una copia su carta o separata da internet",
+      "trusted_contact": "Una persona prevista dal servizio",
+      "provider": "Le istruzioni ufficiali del servizio"
+    },
+    "delegationStates": {
+      "planned": "Da controllare nell'app",
+      "declared": "Ho controllato nell'app",
+      "withdrawn": "Ho tolto il permesso nell'app"
+    }
+  },
+  "en": {
+    "ui": {
+      "passportLead": "The Passport is your instruction list. It reminds you what you use, how you sign in and who may help. Start with one service, such as email.",
+      "passportFuture": "Update it after changing your phone, email or trusted person. This keeps your instructions useful. The Passport does not grant account access or replace a will.",
+      "inventoryTitle": "Your continuity cards",
+      "inventoryIntro": "Each card is a reminder for one service: how you sign in and another route if something is missing. Choose answers you know. “I do not know yet” is fine.",
+      "serviceLabel": "Which service do you want to prepare?",
+      "accessLabel": "How do you usually sign in?",
+      "recoveryLabel": "What other route do you have if you cannot sign in?",
+      "testLabel": "I have already tried this route",
+      "saveItem": "Keep these choices in this page",
+      "emptyInventory": "No cards yet. You can start with email without knowing every answer.",
+      "aiTitle": "The AI apps you use",
+      "aiIntro": "An AI app can help you write or read information. Here you record only what you know about its permissions. Use the original app to grant or remove permission.",
+      "agentLabel": "Which app do you use?",
+      "purposeLabel": "What do you use it for?",
+      "readLabel": "I checked that it may read information",
+      "draftLabel": "I checked that it may prepare drafts",
+      "actionLabel": "I checked that it may act outside the app",
+      "confirmationLabel": "A person must confirm before an important action. This card does not enforce that check in the app.",
+      "untilLabel": "When do you want to review this help? (optional)",
+      "stateLabel": "Have you checked the app's permissions?",
+      "withdrawOnly": "To remove permission, open the original app and check the result. Changing this card does not remove it.",
+      "simulatorLead": "Imagine a problem and look for other routes. This guided exercise does not turn off phones or try to access your accounts.",
+      "readable": "Download the Passport to read or print",
+      "resume": "Save a copy to continue later (JSON)",
+      "importDocument": "Continue from a saved Passport"
+    },
+    "access": {
+      "password_mfa": "Password and another confirmation",
+      "provider": "Another method from the service"
+    },
+    "recovery": {
+      "same_device": "I need the same phone or device",
+      "other_device": "I can use another device",
+      "offline": "I have a paper or separate offline copy",
+      "trusted_contact": "A person supported by the service",
+      "provider": "The service's official instructions"
+    },
+    "delegationStates": {
+      "planned": "To check in the app",
+      "declared": "I checked in the app",
+      "withdrawn": "I removed permission in the app"
+    }
+  },
+  "fr": {
+    "ui": {
+      "passportLead": "Le Passeport est votre liste d'instructions : ce que vous utilisez, comment vous entrez et qui peut aider. Commencez par un service, comme la messagerie.",
+      "passportFuture": "Mettez-le à jour après un changement de téléphone, d'email ou de personne de confiance. Il ne donne pas accès aux comptes et ne remplace pas un testament.",
+      "inventoryTitle": "Vos fiches de continuité",
+      "inventoryIntro": "Une fiche rappelle comment entrer dans un service et quelle autre solution vous avez. Choisissez les réponses connues. “Je ne sais pas encore” convient aussi.",
+      "serviceLabel": "Quel service voulez-vous préparer ?",
+      "accessLabel": "Comment vous connectez-vous d'habitude ?",
+      "recoveryLabel": "Quelle autre solution avez-vous si la connexion échoue ?",
+      "testLabel": "J'ai déjà essayé cette solution",
+      "saveItem": "Garder ces choix dans la page",
+      "emptyInventory": "Aucune fiche. Vous pouvez commencer par la messagerie sans connaître toutes les réponses.",
+      "aiTitle": "Les applications IA que vous utilisez",
+      "aiIntro": "Une app IA peut aider à écrire ou lire. Notez seulement ce que vous savez de ses permissions. Pour les donner ou les retirer, utilisez l'application d'origine.",
+      "agentLabel": "Quelle application utilisez-vous ?",
+      "purposeLabel": "Pour quel usage ?",
+      "readLabel": "J'ai vérifié qu'elle peut lire des informations",
+      "draftLabel": "J'ai vérifié qu'elle peut préparer des brouillons",
+      "actionLabel": "J'ai vérifié qu'elle peut agir ailleurs",
+      "confirmationLabel": "Une personne doit confirmer avant une action importante. Cette fiche n'impose pas ce contrôle dans l'application.",
+      "untilLabel": "Quand voulez-vous revoir cette aide ? (facultatif)",
+      "stateLabel": "Avez-vous vérifié les permissions dans l'application ?",
+      "withdrawOnly": "Retirez la permission dans l'application d'origine et vérifiez le résultat. Modifier cette fiche ne la retire pas.",
+      "simulatorLead": "Imaginez un problème et cherchez d'autres solutions. Cet exercice ne coupe aucun téléphone et n'essaie pas d'ouvrir vos comptes.",
+      "readable": "Télécharger le Passeport pour lire ou imprimer",
+      "resume": "Enregistrer une copie pour reprendre plus tard (JSON)",
+      "importDocument": "Reprendre avec un Passeport enregistré"
+    },
+    "access": {
+      "password_mfa": "Mot de passe et autre confirmation",
+      "provider": "Une autre méthode du service"
+    },
+    "recovery": {
+      "same_device": "J'ai besoin du même téléphone ou appareil",
+      "other_device": "Je peux utiliser un autre appareil",
+      "offline": "J'ai une copie papier ou hors ligne séparée",
+      "trusted_contact": "Une personne prévue par le service",
+      "provider": "Les instructions officielles du service"
+    },
+    "delegationStates": {
+      "planned": "À vérifier dans l'application",
+      "declared": "J'ai vérifié dans l'application",
+      "withdrawn": "J'ai retiré la permission dans l'application"
+    }
+  },
+  "es": {
+    "ui": {
+      "passportLead": "El Pasaporte es tu lista de instrucciones: qué usas, cómo entras y quién puede ayudar. Empieza por un servicio, como el correo.",
+      "passportFuture": "Actualízalo si cambias de teléfono, email o persona de confianza. No da acceso a las cuentas ni sustituye un testamento.",
+      "inventoryTitle": "Tus fichas de continuidad",
+      "inventoryIntro": "Cada ficha recuerda cómo entrar en un servicio y qué otra opción tienes si falta algo. Elige lo que sabes. “Todavía no lo sé” también sirve.",
+      "serviceLabel": "¿Qué servicio quieres preparar?",
+      "accessLabel": "¿Cómo entras normalmente?",
+      "recoveryLabel": "¿Qué otra opción tienes si no puedes entrar?",
+      "testLabel": "Ya he probado esta opción",
+      "saveItem": "Mantener estas opciones en la página",
+      "emptyInventory": "Aún no hay fichas. Puedes empezar por el correo sin saber todas las respuestas.",
+      "aiTitle": "Las apps de IA que usas",
+      "aiIntro": "Una app de IA puede ayudarte a escribir o leer. Aquí anotas solo lo que sabes de sus permisos. Para darlos o retirarlos, usa la app original.",
+      "agentLabel": "¿Qué app usas?",
+      "purposeLabel": "¿Para qué la usas?",
+      "readLabel": "He comprobado que puede leer información",
+      "draftLabel": "He comprobado que puede preparar borradores",
+      "actionLabel": "He comprobado que puede actuar fuera de la app",
+      "confirmationLabel": "Una persona debe confirmar antes de una acción importante. Esta ficha no aplica ese control en la app.",
+      "untilLabel": "¿Cuándo quieres revisar esta ayuda? (opcional)",
+      "stateLabel": "¿Has revisado los permisos en la app?",
+      "withdrawOnly": "Retira el permiso en la app original y comprueba el resultado. Cambiar esta ficha no lo retira.",
+      "simulatorLead": "Imagina un problema y busca otras opciones. Este ejercicio no apaga teléfonos ni intenta abrir tus cuentas.",
+      "readable": "Descargar el Pasaporte para leer o imprimir",
+      "resume": "Guardar una copia para continuar después (JSON)",
+      "importDocument": "Continuar desde un Pasaporte guardado"
+    },
+    "access": {
+      "password_mfa": "Contraseña y otra confirmación",
+      "provider": "Otro método del servicio"
+    },
+    "recovery": {
+      "same_device": "Necesito el mismo teléfono o dispositivo",
+      "other_device": "Puedo usar otro dispositivo",
+      "offline": "Tengo una copia en papel o sin conexión separada",
+      "trusted_contact": "Una persona prevista por el servicio",
+      "provider": "Las instrucciones oficiales del servicio"
+    },
+    "delegationStates": {
+      "planned": "Por comprobar en la app",
+      "declared": "He comprobado en la app",
+      "withdrawn": "He retirado el permiso en la app"
+    }
+  },
+  "pt": {
+    "ui": {
+      "passportLead": "O Passaporte é a sua lista de instruções: o que usa, como entra e quem pode ajudar. Comece por um serviço, como o email.",
+      "passportFuture": "Atualize se mudar de telefone, email ou pessoa de confiança. Não dá acesso às contas nem substitui um testamento.",
+      "inventoryTitle": "As suas fichas de continuidade",
+      "inventoryIntro": "Cada ficha lembra como entrar num serviço e que outra opção tem se faltar algo. Escolha o que sabe. “Ainda não sei” também serve.",
+      "serviceLabel": "Que serviço quer preparar?",
+      "accessLabel": "Como entra normalmente?",
+      "recoveryLabel": "Que outra opção tem se não conseguir entrar?",
+      "testLabel": "Já experimentei esta opção",
+      "saveItem": "Manter estas escolhas na página",
+      "emptyInventory": "Ainda não há fichas. Pode começar pelo email sem saber todas as respostas.",
+      "aiTitle": "As apps de IA que usa",
+      "aiIntro": "Uma app de IA pode ajudar a escrever ou ler. Aqui regista só o que sabe das permissões. Para as dar ou retirar, use a app original.",
+      "agentLabel": "Que app usa?",
+      "purposeLabel": "Para que a usa?",
+      "readLabel": "Verifiquei que pode ler informações",
+      "draftLabel": "Verifiquei que pode preparar rascunhos",
+      "actionLabel": "Verifiquei que pode agir fora da app",
+      "confirmationLabel": "Uma pessoa tem de confirmar antes de uma ação importante. Esta ficha não aplica esse controlo na app.",
+      "untilLabel": "Quando quer rever esta ajuda? (opcional)",
+      "stateLabel": "Já verificou as permissões na app?",
+      "withdrawOnly": "Retire a permissão na app original e verifique o resultado. Alterar esta ficha não a retira.",
+      "simulatorLead": "Imagine um problema e procure outras opções. Este exercício não desliga telefones nem tenta abrir as suas contas.",
+      "readable": "Descarregar o Passaporte para ler ou imprimir",
+      "resume": "Guardar uma cópia para continuar depois (JSON)",
+      "importDocument": "Continuar a partir de um Passaporte guardado"
+    },
+    "access": {
+      "password_mfa": "Palavra-passe e outra confirmação",
+      "provider": "Outro método do serviço"
+    },
+    "recovery": {
+      "same_device": "Preciso do mesmo telefone ou dispositivo",
+      "other_device": "Posso usar outro dispositivo",
+      "offline": "Tenho uma cópia em papel ou offline separada",
+      "trusted_contact": "Uma pessoa prevista pelo serviço",
+      "provider": "As instruções oficiais do serviço"
+    },
+    "delegationStates": {
+      "planned": "Por verificar na app",
+      "declared": "Verifiquei na app",
+      "withdrawn": "Retirei a permissão na app"
+    }
+  }
+};
+for(const [lang,copy]of Object.entries({it,en,fr,es,pt})){for(const key of ['ui','access','recovery','delegationStates'])Object.assign(copy[key],PLAIN_EXTRA[lang][key]);}
 export const EXTRA_COPY = Object.freeze({it, en, fr, es, pt});

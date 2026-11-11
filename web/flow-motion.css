@@ -1,0 +1,64 @@
+/* Scoped navigation polish; this stylesheet never hides a view or a control. */
+.core-workspace[data-flow-ready="true"] .core-nav{
+  gap:9px;
+  padding:11px;
+  margin-block:16px 20px;
+  border:1px solid #3e4d3f;
+  border-radius:17px;
+  background:linear-gradient(125deg,#111b16,#171b12);
+}
+.core-workspace[data-flow-ready="true"] .core-nav .core-button{
+  position:relative;
+  min-height:46px;
+  border-radius:11px;
+  border-color:transparent;
+  background:transparent;
+  color:#cbd4c9;
+  transition:background-color 160ms ease,border-color 160ms ease,box-shadow 160ms ease;
+}
+.core-workspace[data-flow-ready="true"] .core-nav .core-button:hover{
+  background:#243126;
+  border-color:#596c50;
+}
+.core-workspace[data-flow-ready="true"] .core-nav .core-button[aria-current="page"]{
+  background:linear-gradient(120deg,#35462b,#26372d);
+  border-color:#b5d18a;
+  color:#f8f4d6;
+  box-shadow:inset 0 -3px 0 #edc45b,0 3px 14px #0003;
+}
+.core-workspace[data-flow-ready="true"] .core-view>.core-section-heading{
+  position:relative;
+  padding-bottom:18px;
+  border-bottom:1px solid #42503b;
+  margin-bottom:24px;
+}
+.core-workspace[data-flow-ready="true"] .core-view>.core-section-heading::after{
+  content:"";
+  display:block;
+  width:48px;
+  height:3px;
+  margin-top:17px;
+  border-radius:3px;
+  background:linear-gradient(90deg,#edc45b,#a6efb8);
+}
+.core-workspace[data-flow-ready="true"] #core-view-title:focus{
+  outline:2px solid #a6efb8;
+  outline-offset:6px;
+  border-radius:3px;
+}
+.core-workspace .core-view.core-flow-enter{
+  animation:aeterna-flow-enter 180ms cubic-bezier(.2,.7,.2,1);
+}
+@keyframes aeterna-flow-enter{
+  from{opacity:.65;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@media(max-width:760px){
+  .core-workspace[data-flow-ready="true"] .core-nav{gap:8px;padding:9px;margin-block:12px 18px}
+  .core-workspace[data-flow-ready="true"] .core-nav .core-button{font-size:.8rem;min-height:48px;padding:11px 9px}
+  .core-workspace[data-flow-ready="true"] .core-view>.core-section-heading{margin-bottom:20px;padding-bottom:15px}
+}
+@media(prefers-reduced-motion:reduce){
+  .core-workspace .core-view.core-flow-enter{animation:none!important;transform:none!important}
+  .core-workspace[data-flow-ready="true"] .core-nav .core-button{transition:none!important}
+}

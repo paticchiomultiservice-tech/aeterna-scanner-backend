@@ -16,17 +16,162 @@ en:{roles:['Partner','Child','Other relative','Friend','Colleague','Professional
 fr:{roles:['Partenaire','Enfant','Autre proche','Ami','Collègue','Professionnel','Autre personne'],scopes:['Contacts et instructions','Accès et récupération','Archives et copies','Travail','Instructions futures'],choices:['Pas encore décidé','Je préfère éviter cet usage','Je veux en discuter et définir les limites'],future:['Voix','Visage et images','Style écrit ou représentation'],memory:['Choisir plus tard','Une photo','Un souvenir écrit','Une valeur à transmettre','Une instruction utile']},
 es:{roles:['Pareja','Hijo o hija','Otro familiar','Amigo o amiga','Colega','Profesional','Otra persona'],scopes:['Contactos e instrucciones','Accesos y recuperación','Archivos y copias','Trabajo','Instrucciones futuras'],choices:['Todavía sin decidir','Prefiero evitar este uso','Quiero consultarlo y definir límites'],future:['Voz','Rostro e imágenes','Estilo escrito o representación'],memory:['Elegir más adelante','Una foto','Un recuerdo escrito','Un valor que transmitir','Una instrucción útil']},
 pt:{roles:['Parceiro','Filho ou filha','Outro familiar','Amigo','Colega','Profissional','Outra pessoa'],scopes:['Contactos e instruções','Acessos e recuperação','Arquivos e cópias','Trabalho','Instruções futuras'],choices:['Ainda não decidi','Prefiro evitar este uso','Quero discutir e definir limites'],future:['Voz','Rosto e imagens','Estilo escrito ou representação'],memory:['Escolher mais tarde','Uma fotografia','Uma memória escrita','Um valor a transmitir','Uma instrução útil']}};
-export const CARE_COPY=Object.freeze(Object.fromEntries(Object.keys(rows).map(lang=>[lang,{ui:Object.fromEntries(keys.map((k,i)=>[k,rows[lang][i]])),...categories[lang]}])));
+const PLAIN_CARE={
+  "it": {
+    "ui": {
+      "title": "Persone, ricordi e prossimi controlli",
+      "intro": "Qui prepari un piccolo passo alla volta. Scegli solo il tipo di persona o di aiuto. Nomi e recapiti restano nei tuoi strumenti, non in queste schede.",
+      "roles": "Chi potrebbe aiutarti?",
+      "roleHelp": "Pensa a una persona con cui ne hai parlato. Qui scegli il suo ruolo, non scrivi il nome. Esempio: “Amico o amica” per una persona che può aiutarti a trovare un documento.",
+      "role": "Che rapporto hai con questa persona?",
+      "scope": "In che cosa potrebbe aiutarti?",
+      "alternate": "Ho pensato a un'altra persona se la prima manca",
+      "future": "Come vorrei fosse usata la mia voce o immagine",
+      "memory": "Un ricordo da conservare",
+      "review": "Quando ricontrollare il piano",
+      "prepared": "Ho ritrovato e aperto la copia che avevo preparato",
+      "checked": "Ho già ricontrollato le informazioni del piano",
+      "cadence": "Ogni quanti giorni vuoi ricontrollare?",
+      "declaration": "Questi sono i passi che dichiari di aver fatto, non controlli effettuati da AETERNA."
+    },
+    "help": {
+      "role": "Scegli solo una categoria, per esempio familiare o collega. Non occorre scrivere il nome qui.",
+      "scope": "Scegli una cosa precisa. Per esempio: trovare le copie dei documenti. Questo non permette alla persona di entrare nei tuoi account.",
+      "alternate": "Spunta se hai già pensato a una seconda persona. La prima potrebbe non rispondere quando serve.",
+      "future": "Puoi lasciare “Non ho ancora deciso”. Esempio: preferisci discutere prima che qualcuno usi la tua voce per creare un audio AI.",
+      "memory": "Scegli un solo ricordo da sistemare nei tuoi strumenti. Esempio: una foto già tua con due righe di spiegazione. Qui non carichi la foto.",
+      "prepared": "Spunta solo dopo aver trovato e aperto la copia. Avere scelto “Una foto” non significa averla salvata.",
+      "cadence": "30 giorni significa circa una volta al mese. Scegli un ritmo che puoi seguire. Il promemoria va aggiunto da te al calendario.",
+      "checked": "Spunta dopo aver controllato davvero. La data sotto dice quando hai segnato il controllo; non prova che le informazioni siano ancora giuste oggi."
+    }
+  },
+  "en": {
+    "ui": {
+      "title": "People, memories and next checks",
+      "intro": "Prepare one small step at a time. Choose only the type of person or help. Names and contacts stay in your own tools, not these cards.",
+      "roles": "Who could help you?",
+      "roleHelp": "Think of someone you have spoken with. Choose their role here, not their name. Example: “Friend” for someone who may help find a document.",
+      "role": "How do you know this person?",
+      "scope": "What could they help with?",
+      "alternate": "I thought of another person if the first is unavailable",
+      "future": "How I want my voice or image to be used",
+      "memory": "A memory to keep",
+      "review": "When to check the plan again",
+      "prepared": "I found and opened the copy I prepared",
+      "checked": "I have reviewed the plan's information",
+      "cadence": "How many days between checks?",
+      "declaration": "These are steps you report doing, not checks performed by AETERNA."
+    },
+    "help": {
+      "role": "Choose a category, such as relative or colleague. No name is needed here.",
+      "scope": "Choose one clear task, such as finding document copies. This does not let the person access your accounts.",
+      "alternate": "Tick if you have thought of a second person. The first might not answer when needed.",
+      "future": "You may leave “Not decided yet”. For example: you want to discuss someone using your voice in AI audio first.",
+      "memory": "Choose one memory to organise in your own tools. For example: a photo you own with two lines of explanation. You do not upload it here.",
+      "prepared": "Tick only after finding and opening the copy. Choosing “A photo” does not save the photo.",
+      "cadence": "30 days is about once a month. Choose a rhythm you can follow. Add the reminder to your calendar yourself.",
+      "checked": "Tick after actually checking. The date below records when you reported it; it does not prove the information is still right today."
+    }
+  },
+  "fr": {
+    "ui": {
+      "title": "Personnes, souvenirs et prochains contrôles",
+      "intro": "Préparez une petite étape à la fois. Choisissez seulement le type de personne ou d'aide. Les noms et contacts restent dans vos outils.",
+      "roles": "Qui pourrait vous aider ?",
+      "roleHelp": "Pensez à une personne avec qui vous en avez parlé. Choisissez son rôle, pas son nom. Exemple : un ami qui aide à retrouver un document.",
+      "role": "Quel est votre lien avec cette personne ?",
+      "scope": "Pour quelle tâche pourrait-elle aider ?",
+      "alternate": "J'ai pensé à une autre personne si la première manque",
+      "future": "Comment je souhaite utiliser ma voix ou mon image",
+      "memory": "Un souvenir à garder",
+      "review": "Quand revoir le plan",
+      "prepared": "J'ai retrouvé et ouvert la copie préparée",
+      "checked": "J'ai déjà revu les informations du plan",
+      "cadence": "Combien de jours entre les contrôles ?",
+      "declaration": "Ce sont les étapes que vous déclarez, pas des contrôles effectués par AETERNA."
+    },
+    "help": {
+      "role": "Choisissez une catégorie : proche, collègue, etc. Aucun nom n'est nécessaire ici.",
+      "scope": "Choisissez une tâche précise, comme retrouver des copies. Cela ne donne pas accès à vos comptes.",
+      "alternate": "Cochez si vous avez pensé à une seconde personne. La première peut ne pas répondre au bon moment.",
+      "future": "Vous pouvez laisser “Pas encore décidé”. Exemple : discuter avant qu'une personne utilise votre voix dans un audio IA.",
+      "memory": "Choisissez un souvenir à ranger dans vos outils : une photo à vous et deux lignes d'explication. Rien n'est chargé ici.",
+      "prepared": "Cochez après avoir retrouvé et ouvert la copie. Choisir “Une photo” n'enregistre pas la photo.",
+      "cadence": "30 jours, c'est environ une fois par mois. Choisissez un rythme possible. Ajoutez vous-même le rappel au calendrier.",
+      "checked": "Cochez après un vrai contrôle. La date indique quand vous l'avez noté, pas que les informations sont toujours justes aujourd'hui."
+    }
+  },
+  "es": {
+    "ui": {
+      "title": "Personas, recuerdos y próximas revisiones",
+      "intro": "Prepara un pequeño paso cada vez. Elige solo el tipo de persona o ayuda. Nombres y contactos quedan en tus herramientas.",
+      "roles": "¿Quién podría ayudarte?",
+      "roleHelp": "Piensa en alguien con quien has hablado. Elige su papel, no su nombre. Ejemplo: un amigo que te ayuda a encontrar un documento.",
+      "role": "¿Qué relación tienes con esta persona?",
+      "scope": "¿En qué tarea podría ayudar?",
+      "alternate": "He pensado en otra persona si falta la primera",
+      "future": "Cómo quiero que se use mi voz o imagen",
+      "memory": "Un recuerdo que guardar",
+      "review": "Cuándo revisar el plan",
+      "prepared": "He encontrado y abierto la copia preparada",
+      "checked": "He revisado la información del plan",
+      "cadence": "¿Cuántos días entre revisiones?",
+      "declaration": "Son pasos que tú declaras, no controles realizados por AETERNA."
+    },
+    "help": {
+      "role": "Elige una categoría, como familiar o colega. Aquí no hace falta el nombre.",
+      "scope": "Elige una tarea clara, como encontrar copias. No da permiso para entrar en tus cuentas.",
+      "alternate": "Marca si has pensado en una segunda persona. La primera podría no contestar cuando haga falta.",
+      "future": "Puedes dejar “Todavía sin decidir”. Ejemplo: hablar antes de que alguien use tu voz en un audio de IA.",
+      "memory": "Elige un recuerdo para ordenar en tus herramientas: una foto tuya y dos líneas de explicación. Aquí no se sube la foto.",
+      "prepared": "Marca después de encontrar y abrir la copia. Elegir “Una foto” no guarda la foto.",
+      "cadence": "30 días es más o menos una vez al mes. Elige un ritmo que puedas seguir y añade tú el recordatorio al calendario.",
+      "checked": "Marca después de revisar de verdad. La fecha indica cuándo lo anotaste, no que la información siga siendo correcta hoy."
+    }
+  },
+  "pt": {
+    "ui": {
+      "title": "Pessoas, memórias e próximas revisões",
+      "intro": "Prepare um pequeno passo de cada vez. Escolha só o tipo de pessoa ou ajuda. Nomes e contactos ficam nas suas ferramentas.",
+      "roles": "Quem poderia ajudar?",
+      "roleHelp": "Pense numa pessoa com quem falou. Escolha o papel, não o nome. Exemplo: um amigo que ajuda a encontrar um documento.",
+      "role": "Que relação tem com esta pessoa?",
+      "scope": "Em que tarefa poderia ajudar?",
+      "alternate": "Pensei noutra pessoa se a primeira faltar",
+      "future": "Como quero que a minha voz ou imagem sejam usadas",
+      "memory": "Uma memória para guardar",
+      "review": "Quando rever o plano",
+      "prepared": "Encontrei e abri a cópia preparada",
+      "checked": "Já revi as informações do plano",
+      "cadence": "Quantos dias entre revisões?",
+      "declaration": "São passos que declara ter feito, não verificações feitas pela AETERNA."
+    },
+    "help": {
+      "role": "Escolha uma categoria, como familiar ou colega. Não é preciso o nome aqui.",
+      "scope": "Escolha uma tarefa clara, como encontrar cópias. Isto não dá acesso às suas contas.",
+      "alternate": "Assinale se pensou numa segunda pessoa. A primeira pode não responder quando for preciso.",
+      "future": "Pode deixar “Ainda não decidi”. Exemplo: conversar antes de alguém usar a sua voz num áudio de IA.",
+      "memory": "Escolha uma memória para organizar nas suas ferramentas: uma fotografia sua e duas linhas de explicação. Não é carregada aqui.",
+      "prepared": "Assinale depois de encontrar e abrir a cópia. Escolher “Uma fotografia” não guarda a fotografia.",
+      "cadence": "30 dias é cerca de uma vez por mês. Escolha um ritmo possível e adicione o lembrete ao calendário.",
+      "checked": "Assinale depois de verificar realmente. A data indica quando registou, não que a informação continue certa hoje."
+    }
+  }
+};
+for(const [lang,copy]of Object.entries(PLAIN_CARE))for(const [key,text]of Object.entries(copy.ui)){const index=keys.indexOf(key);if(index<0)throw Error('Unknown care copy key');rows[lang][index]=text;}
+export const CARE_COPY=Object.freeze(Object.fromEntries(Object.keys(rows).map(lang=>[lang,{ui:Object.fromEntries(keys.map((k,i)=>[k,rows[lang][i]])),...categories[lang],help:PLAIN_CARE[lang].help}])));
 export function createCarePanel({getPassport,updateCare,getLanguage,now,download,rerender=()=>{}}){
   let editing=null;
   const lang=()=>getLanguage(),cp=()=>CARE_COPY[lang()],u=k=>cp().ui[k],old=()=>EXTRA_COPY[lang()].ui;
   const button=(label,attrs='')=>`<button type="button" class="core-button" ${attrs}>${h(label)}</button>`;
-  const select=(id,label,values,value,names)=>`<label for="${id}">${h(label)}</label><select id="${id}">${values.map((v,i)=>`<option value="${h(v)}" ${v===value?'selected':''}>${h(names[i])}</option>`).join('')}</select>`;
+  const helpKey=id=>({'care-role':'role','care-scope':'scope','care-memory':'memory','care-cadence':'cadence'}[id]||(id.startsWith('care-future-')?'future':null));
+  const fieldHelp=(id,key=helpKey(id))=>key?`<p id="${h(id)}-help" class="core-small core-field-help">${h(cp().help[key])}</p>`:'';
+  const select=(id,label,values,value,names)=>`<label for="${id}">${h(label)}</label><select id="${id}" aria-describedby="${id}-help">${values.map((v,i)=>`<option value="${h(v)}" ${v===value?'selected':''}>${h(names[i])}</option>`).join('')}</select>${fieldHelp(id)}`;
   const d=v=>v?new Intl.DateTimeFormat(lang(),{dateStyle:'medium'}).format(new Date(v)):u('unknown');
   function summary(){const p=getPassport();return `<details class="core-card"><summary>${h(u('overview'))}</summary><p>${h(u('declaration'))}</p><div class="core-progress-areas">${DIMENSIONS.map(id=>{const statuses=PHASES.filter(k=>PHASE_DIMENSIONS[k]===id).map(k=>effectivePhaseStatus(p.journey,k,now()));return `<article><h4>${h(CORE_COPY[lang()].dimensions[id])}</h4><p>${h(u('open'))}: ${statuses.filter(s=>s==='todo'||s==='declared').length} · ${h(u('recheck'))}: ${statuses.filter(s=>s==='review').length}</p></article>`;}).join('')}</div></details>`;}
   const alternateText=row=>row.alternate?u('alternate'):u('unknown');
   function records(care){return care.roles.map(row=>`<article class="core-record"><div><strong>${h(cp().roles[ROLE_TYPES.indexOf(row.role)])}</strong><p>${h(cp().scopes[ROLE_SCOPES.indexOf(row.scope)])}</p><p>${row.alternate?'✓ ':''}${h(alternateText(row))}</p></div><div>${button(old().edit,`data-care-edit="${row.id}"`)}${button(old().remove,`data-care-remove="${row.id}"`)}</div></article>`).join('');}
-  function render(){const care=getPassport().care,row=care.roles.find(r=>r.id===editing)||{role:'relative',scope:'contacts',alternate:false};return `<div class="core-section-heading"><h3 id="core-view-title" tabindex="-1">${h(u('title'))}</h3><p>${h(u('intro'))}</p></div><section class="core-card"><h4>${h(u('roles'))}</h4><p>${h(u('roleHelp'))}</p>${records(care)}<form id="care-role-form">${select('care-role',u('role'),ROLE_TYPES,row.role,cp().roles)}${select('care-scope',u('scope'),ROLE_SCOPES,row.scope,cp().scopes)}<label class="core-check"><input id="care-alternate" type="checkbox" ${row.alternate?'checked':''}>${h(u('alternate'))}</label><button type="submit" class="core-button core-primary">${h(old().saveItem)}</button></form><p class="core-note">${h(u('familyCheck'))}</p></section><details class="core-card"><summary>${h(u('future'))}</summary><p>${h(u('futureHelp'))}</p>${FUTURE_KEYS.map((k,i)=>select('care-future-'+k,cp().future[i],FUTURE_CHOICES,care.future[k],cp().choices)).join('')}</details><details class="core-card"><summary>${h(u('memory'))}</summary><p>${h(u('memoryHelp'))}</p><form id="care-memory-form">${select('care-memory',u('memory'),MEMORY_TOPICS,care.memory.topic,cp().memory)}<label class="core-check"><input id="care-prepared" type="checkbox" ${care.memory.prepared?'checked':''}>${h(u('prepared'))}</label><p>${h(u('last'))}: ${h(d(care.memory.updatedAt))}</p><button type="submit" class="core-button">${h(old().saveItem)}</button></form></details><details class="core-card"><summary>${h(u('review'))}</summary><p>${h(u('reviewHelp'))}</p><form id="care-review-form">${select('care-cadence',u('cadence'),REVIEW_DAYS,care.review.cadenceDays,REVIEW_DAYS.map(v=>v+' '+u('days')))}<label class="core-check"><input id="care-checked" type="checkbox" ${care.review.lastCheckedAt?'checked':''}>${h(u('checked'))}</label><p>${h(u('last'))}: ${h(d(care.review.lastCheckedAt))}</p><button type="submit" class="core-button">${h(old().saveItem)}</button></form>${button(CORE_COPY[lang()].ui.downloadIcs,'data-export="calendar"')}</details><section class="core-card"><h4>${h(u('assist'))}</h4><p>${h(u('assistHelp'))}</p>${button(u('download'),'data-care-assistance')}<a class="core-button" href="mailto:info@aeternadigitallegacy.com?subject=AETERNA%20-%20richiesta%20assistenza">${h(u('mail'))}</a><p>${h(u('draftOnly'))}</p></section>`;}
+  function render(){const care=getPassport().care,row=care.roles.find(r=>r.id===editing)||{role:'relative',scope:'contacts',alternate:false};return `<div class="core-section-heading"><h3 id="core-view-title" tabindex="-1">${h(u('title'))}</h3><p>${h(u('intro'))}</p></div><section class="core-card"><h4>${h(u('roles'))}</h4><p>${h(u('roleHelp'))}</p>${records(care)}<form id="care-role-form">${select('care-role',u('role'),ROLE_TYPES,row.role,cp().roles)}${select('care-scope',u('scope'),ROLE_SCOPES,row.scope,cp().scopes)}<label class="core-check"><input id="care-alternate" type="checkbox" aria-describedby="care-alternate-help" ${row.alternate?'checked':''}>${h(u('alternate'))}</label>${fieldHelp('care-alternate','alternate')}<button type="submit" class="core-button core-primary">${h(old().saveItem)}</button></form><p class="core-note">${h(u('familyCheck'))}</p></section><details class="core-card"><summary>${h(u('future'))}</summary><p>${h(u('futureHelp'))}</p>${FUTURE_KEYS.map((k,i)=>select('care-future-'+k,cp().future[i],FUTURE_CHOICES,care.future[k],cp().choices)).join('')}</details><details class="core-card"><summary>${h(u('memory'))}</summary><p>${h(u('memoryHelp'))}</p><form id="care-memory-form">${select('care-memory',u('memory'),MEMORY_TOPICS,care.memory.topic,cp().memory)}<label class="core-check"><input id="care-prepared" type="checkbox" aria-describedby="care-prepared-help" ${care.memory.prepared?'checked':''}>${h(u('prepared'))}</label>${fieldHelp('care-prepared','prepared')}<p>${h(u('last'))}: ${h(d(care.memory.updatedAt))}</p><button type="submit" class="core-button">${h(old().saveItem)}</button></form></details><details class="core-card"><summary>${h(u('review'))}</summary><p>${h(u('reviewHelp'))}</p><form id="care-review-form">${select('care-cadence',u('cadence'),REVIEW_DAYS,care.review.cadenceDays,REVIEW_DAYS.map(v=>v+' '+u('days')))}<label class="core-check"><input id="care-checked" type="checkbox" aria-describedby="care-checked-help" ${care.review.lastCheckedAt?'checked':''}>${h(u('checked'))}</label>${fieldHelp('care-checked','checked')}<p>${h(u('last'))}: ${h(d(care.review.lastCheckedAt))}</p><button type="submit" class="core-button">${h(old().saveItem)}</button></form>${button(CORE_COPY[lang()].ui.downloadIcs,'data-export="calendar"')}</details><section class="core-card"><h4>${h(u('assist'))}</h4><p>${h(u('assistHelp'))}</p>${button(u('download'),'data-care-assistance')}<a class="core-button" href="mailto:info@aeternadigitallegacy.com?subject=AETERNA%20-%20richiesta%20assistenza">${h(u('mail'))}</a><p>${h(u('draftOnly'))}</p></section>`;}
   function printable(){
     const care=getPassport().care;
     return `<section><h2>${h(u('title'))}</h2><p>${h(u('roleHelp'))}</p><ul>${care.roles.map(r=>`<li>${h(cp().roles[ROLE_TYPES.indexOf(r.role)])}: ${h(cp().scopes[ROLE_SCOPES.indexOf(r.scope)])}. ${h(alternateText(r))}</li>`).join('')}</ul><h3>${h(u('future'))}</h3><p>${h(u('futureHelp'))}</p><ul>${FUTURE_KEYS.map((k,i)=>`<li>${h(cp().future[i])}: ${h(cp().choices[FUTURE_CHOICES.indexOf(care.future[k])])}</li>`).join('')}</ul><h3>${h(u('memory'))}</h3><p>${h(cp().memory[MEMORY_TOPICS.indexOf(care.memory.topic)])} · ${h(d(care.memory.updatedAt))}</p><p>${h(care.memory.prepared?u('prepared'):u('unknown'))}</p><p>${h(u('memoryHelp'))}</p><h3>${h(u('review'))}</h3><p>${care.review.cadenceDays} ${h(u('days'))} · ${h(u('last'))}: ${h(d(care.review.lastCheckedAt))}</p><p>${h(u('reviewHelp'))}</p></section>`;

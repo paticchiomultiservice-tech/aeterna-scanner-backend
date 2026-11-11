@@ -159,4 +159,128 @@ const additionalUi={
 };
 for(const [locale,copy]of Object.entries({it,en,fr,es,pt}))Object.assign(copy.ui,additionalUi[locale]);
 for(const [locale,copy]of Object.entries({it,en,fr,es,pt}))copy.ui.clientTitle={it:'Il tuo contesto di partenza',en:'Your starting context',fr:'Votre contexte de départ',es:'Tu contexto de partida',pt:'O seu contexto inicial'}[locale];
+// Everyday labels preserve the existing model states.
+const PLAIN_CORE={
+  "it": {
+    "ui": {
+      "title": "Il tuo percorso AETERNA",
+      "protocol": "Passi da fare",
+      "simulator": "Proviamo un imprevisto",
+      "stateLabel": "Che cosa hai già fatto?",
+      "diaryTitle": "Le attività che hai segnato",
+      "passportIntro": "Il Passaporto raccoglie i tuoi promemoria. Ti aiuta a ritrovare istruzioni e alternative, ma non è un documento d'identità, un testamento o un permesso ad accedere agli account.",
+      "preferencesTitle": "Chi può aiutarti e quali limiti vuoi",
+      "helper": "Una persona che potrebbe aiutarti",
+      "agent": "Le app che possono aiutarti",
+      "exportJson": "Salva una copia per continuare dopo (JSON)",
+      "importJson": "Continua da una copia già salvata",
+      "progressLabel": "Passi che hai compilato",
+      "nextReview": "Quando ricontrollare",
+      "reviewDue": "Ti suggeriamo di ricontrollare dopo 90 giorni"
+    },
+    "states": {
+      "todo": "Da fare",
+      "declared": "Preparato da me",
+      "tested": "Provato da me",
+      "review": "Da ricontrollare"
+    }
+  },
+  "en": {
+    "ui": {
+      "title": "Your AETERNA journey",
+      "protocol": "Steps to take",
+      "simulator": "Try an unexpected situation",
+      "stateLabel": "What have you already done?",
+      "diaryTitle": "Activities you recorded",
+      "passportIntro": "The Passport holds your reminders. It helps you find instructions and alternatives, but is not an identity document, a will or permission to access accounts.",
+      "preferencesTitle": "Who may help and which limits you want",
+      "helper": "Someone who could help",
+      "agent": "Apps that may help",
+      "exportJson": "Save a copy to continue later (JSON)",
+      "importJson": "Continue from a saved copy",
+      "progressLabel": "Steps you filled in",
+      "nextReview": "When to check again",
+      "reviewDue": "We suggest checking again after 90 days"
+    },
+    "states": {
+      "todo": "To do",
+      "declared": "Prepared by me",
+      "tested": "Tried by me",
+      "review": "To check again"
+    }
+  },
+  "fr": {
+    "ui": {
+      "title": "Votre parcours AETERNA",
+      "protocol": "Étapes à suivre",
+      "simulator": "Essayons un imprévu",
+      "stateLabel": "Qu'avez-vous déjà fait ?",
+      "diaryTitle": "Les activités que vous avez notées",
+      "passportIntro": "Le Passeport rassemble vos rappels et solutions. Ce n'est ni une pièce d'identité, ni un testament, ni une permission d'accéder aux comptes.",
+      "preferencesTitle": "Qui peut aider et quelles limites vous souhaitez",
+      "helper": "Une personne qui pourrait aider",
+      "agent": "Les applications qui peuvent aider",
+      "exportJson": "Enregistrer pour reprendre plus tard (JSON)",
+      "importJson": "Reprendre avec une copie enregistrée",
+      "progressLabel": "Étapes remplies",
+      "nextReview": "Quand vérifier à nouveau",
+      "reviewDue": "Nouvelle vérification suggérée après 90 jours"
+    },
+    "states": {
+      "todo": "À faire",
+      "declared": "Préparé par moi",
+      "tested": "Essayé par moi",
+      "review": "À vérifier à nouveau"
+    }
+  },
+  "es": {
+    "ui": {
+      "title": "Tu recorrido AETERNA",
+      "protocol": "Pasos que seguir",
+      "simulator": "Probemos un imprevisto",
+      "stateLabel": "¿Qué has hecho ya?",
+      "diaryTitle": "Las actividades que anotaste",
+      "passportIntro": "El Pasaporte reúne tus recordatorios e instrucciones. No es un documento de identidad, un testamento ni un permiso para entrar en cuentas.",
+      "preferencesTitle": "Quién puede ayudar y qué límites quieres",
+      "helper": "Una persona que podría ayudar",
+      "agent": "Las apps que pueden ayudar",
+      "exportJson": "Guardar para continuar después (JSON)",
+      "importJson": "Continuar desde una copia guardada",
+      "progressLabel": "Pasos rellenados",
+      "nextReview": "Cuándo volver a comprobar",
+      "reviewDue": "Recomendamos volver a comprobar tras 90 días"
+    },
+    "states": {
+      "todo": "Por hacer",
+      "declared": "Preparado por mí",
+      "tested": "Probado por mí",
+      "review": "Por volver a comprobar"
+    }
+  },
+  "pt": {
+    "ui": {
+      "title": "O seu percurso AETERNA",
+      "protocol": "Passos a seguir",
+      "simulator": "Vamos experimentar um imprevisto",
+      "stateLabel": "O que já fez?",
+      "diaryTitle": "As atividades que registou",
+      "passportIntro": "O Passaporte reúne lembretes e instruções. Não é um documento de identidade, um testamento nem uma permissão para entrar em contas.",
+      "preferencesTitle": "Quem pode ajudar e que limites pretende",
+      "helper": "Uma pessoa que poderia ajudar",
+      "agent": "As apps que podem ajudar",
+      "exportJson": "Guardar para continuar depois (JSON)",
+      "importJson": "Continuar a partir de uma cópia guardada",
+      "progressLabel": "Passos preenchidos",
+      "nextReview": "Quando voltar a verificar",
+      "reviewDue": "Sugerimos voltar a verificar após 90 dias"
+    },
+    "states": {
+      "todo": "Por fazer",
+      "declared": "Preparado por mim",
+      "tested": "Testado por mim",
+      "review": "Por voltar a verificar"
+    }
+  }
+};
+for(const [lang,copy]of Object.entries({it,en,fr,es,pt})){Object.assign(copy.ui,PLAIN_CORE[lang].ui);Object.assign(copy.ui.states,PLAIN_CORE[lang].states);}
 export const CORE_COPY=Object.freeze({it,en,fr,es,pt});
