@@ -416,6 +416,21 @@ def create_app(settings=None, gateway=None, analyzer=analyze):
             return response
         return authenticated_response(account, session_secret(request))
 
+    @app.get("/api/workspace/resume-scope")
+    async def workspace_resume_scope(request: Request):
+        # An authenticated, opaque local-storage namespace. This value grants
+        # no API access and is never accepted in place of a session or CSRF.
+        configured()
+        owner = session_hash(request)
+        rates.check(("workspace_resume_scope", owner), 60, 60)
+        await current_account(request)
+        data = await call("workspace_resume_scope", {"session_hash": owner})
+        if (type(data) is not dict or set(data) != {"ok", "scope"} or
+                data.get("ok") is not True or type(data.get("scope")) is not str or
+                not re.fullmatch(r"[a-f0-9]{64}", data["scope"])):
+            raise APIError("SERVICE_UNAVAILABLE", 503)
+        return {"ok": True, "scope": secret_hmac("capsule-device-scope-v1:" + data["scope"])}
+
     @app.get("/api/workspace/capabilities")
     async def workspace_capabilities(request: Request):
         configured()
