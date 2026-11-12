@@ -29,6 +29,13 @@ ROLE_SCOPES = ("contacts", "access", "archives", "business", "future")
 FUTURE_KEYS = ("voice", "face", "style")
 EXTRAS = ("digitalLegacy", "continuity", "reputation", "accountRecovery", "familyAccess", "businessContinuity", "creatorProtection", "staffTraining", "brandMonitoring", "executiveShield", "vendorAccessReview", "crisisWarRoom", "boardReport")
 COUNTS = ("accountCritici", "social", "emailnum", "siti", "domini", "wallet", "cloud", "dispositivi", "collaboratori", "archiviDocumenti")
+DELIVERY_STATES = ("to_agree", "scheduled", "in_progress", "awaiting_customer", "delivered", "cancelled")
+DELIVERY_CODES = {
+    "base": ("audit", "mapping", "report"),
+    "silver": ("audit", "mapping", "report", "accountRecovery"),
+    "gold": ("audit", "mapping", "report", "accountRecovery", "reputation", "continuity", "digitalLegacy"),
+    "guardian": ("audit", "mapping", "report", "accountRecovery", "reputation", "continuity", "digitalLegacy", "review"),
+}
 EPOCH = "1970-01-01T00:00:00.000Z"
 
 
@@ -265,14 +272,52 @@ def validate_workspace(value):
             "saved_at": timestamp(value["saved_at"])}
 
 
+def validate_delivery_ledger(value, configuration, submitted, current_time):
+    exact(value, ("schema", "revision", "items"))
+    if value["schema"] != "aeterna.delivery-ledger.v1":
+        invalid()
+    revision = integer(value["revision"], 1, 2**31 - 1)
+    codes = set(DELIVERY_CODES[configuration["plan"]]) | set(configuration["extras"])
+    items, seen = [], set()
+    for entry in array(value["items"], len(codes)):
+        exact(entry, ("service_code", "state", "responsible", "due_at", "delivered_at",
+                      "evidence_reference", "acknowledged_at"))
+        code = choice(entry["service_code"], codes)
+        state = choice(entry["state"], DELIVERY_STATES)
+        name, evidence = entry["responsible"], entry["evidence_reference"]
+        if code in seen or (name is not None and (
+                type(name) is not str or name != name.strip()
+                or not re.fullmatch(r"[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ .'’-]{0,59}", name))):
+            invalid()
+        seen.add(code)
+        due = None if entry["due_at"] is None else timestamp(entry["due_at"])
+        delivered = None if entry["delivered_at"] is None else at_or_before(entry["delivered_at"], current_time)
+        ack = None if entry["acknowledged_at"] is None else at_or_before(entry["acknowledged_at"], current_time)
+        if state not in ("to_agree", "cancelled") and name is None:
+            invalid()
+        if (state == "scheduled" and due is None) or (due is not None and due < submitted):
+            invalid()
+        if state == "delivered":
+            if (delivered is None or delivered < submitted or type(evidence) is not str
+                    or not re.fullmatch(r"DOC-[A-Z0-9][A-Z0-9_-]{3,47}", evidence)
+                    or (ack is not None and ack < delivered)):
+                invalid()
+        elif delivered is not None or evidence is not None or ack is not None:
+            invalid()
+        items.append(dict(entry))
+    return {"schema": value["schema"], "revision": revision, "items": items}
+
+
 def validate_services(value):
     exact(value, ("ok", "source_available", "orders"))
     if value["ok"] is not True:
         invalid()
     available = boolean(value["source_available"])
     orders, references = [], set()
+    current_time = datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+    order_keys = ("reference", "submitted_at", "state", "configuration", "fulfilment")
     for row in array(value["orders"], 20):
-        exact(row, ("reference", "submitted_at", "state", "configuration", "fulfilment"))
+        exact(row, (*order_keys, "delivery_ledger") if type(row) is dict and "delivery_ledger" in row else order_keys)
         reference = row["reference"]
         if type(reference) is not str or not re.fullmatch(r"AO-[A-F0-9]{32}", reference) or reference in references:
             invalid()
@@ -309,9 +354,14 @@ def validate_services(value):
         state = choice(row["state"], ("payment_pending", "active", "review_required", "cancelled"))
         if state != "active" and status != "not_started":
             invalid()
-        orders.append({"reference": reference, "submitted_at": timestamp(row["submitted_at"]),
-                       "state": state,
-                       "configuration": clean_config, "fulfilment": {"status": status, "delivered_at": delivered}})
+        submitted = timestamp(row["submitted_at"])
+        order = {"reference": reference, "submitted_at": submitted, "state": state,
+                 "configuration": clean_config, "fulfilment": {"status": status, "delivered_at": delivered}}
+        if "delivery_ledger" in row:
+            if state != "active" or clean_config["plan"] == "scanner_10":
+                invalid()
+            order["delivery_ledger"] = validate_delivery_ledger(row["delivery_ledger"], clean_config, submitted, current_time)
+        orders.append(order)
     if not available and orders:
         invalid()
     return {"ok": True, "source_available": available, "orders": orders}

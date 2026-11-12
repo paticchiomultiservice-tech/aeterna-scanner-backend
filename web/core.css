@@ -49,6 +49,15 @@
 .core-record h5{font-size:1.05rem;color:#f0d98f;margin:0 0 6px}
 .core-record p{margin:4px 0}
 .core-record .core-actions{flex-shrink:0}
+.core-delivery-ledger{margin:16px 0}
+.core-delivery-ledger>ul{list-style:none;padding:0;margin:0}
+.core-delivery-ledger li{padding:12px 0;border-top:1px solid #414536}
+.core-delivery-ledger li>p{margin:4px 0 8px}
+.core-delivery-ledger dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,175px),1fr));gap:8px;margin:0}
+.core-delivery-ledger dt{font-size:.9rem}
+.core-delivery-ledger dd{margin:0;overflow-wrap:anywhere}
+.core-worksheets section{margin-top:16px}
+.core-worksheets section+section{border-top:1px solid #414536;padding-top:16px}
 .core-passport-purpose{border-color:#878044;background:linear-gradient(120deg,#242415,#111b13)}
 .core-passport-purpose>p:first-child{font-size:1.1rem}
 .core-exercise{padding-left:24px;display:grid;gap:14px}

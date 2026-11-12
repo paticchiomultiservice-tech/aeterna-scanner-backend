@@ -17,6 +17,19 @@ const EXTRAS=['digitalLegacy','continuity','reputation','accountRecovery','famil
 const GOAL_PHASES={protection:['verify','access','recovery'],access:['access','recovery','backup'],family:['people','verify','legacy'],legacy:['legacy','memory','backup','people'],business:['map','permissions','recovery','people','backup'],ai:['permissions','verify','legacy'],complete:PHASES};
 const EXTRA_PHASES={digitalLegacy:['legacy','memory','people'],continuity:['recovery','backup','review'],reputation:['verify'],accountRecovery:['recovery'],familyAccess:['people','access'],businessContinuity:['map','backup','recovery','permissions'],creatorProtection:['access','permissions','backup'],staffTraining:['verify'],brandMonitoring:['verify','review'],executiveShield:['access','recovery','permissions'],vendorAccessReview:['permissions'],crisisWarRoom:['verify','recovery'],boardReport:['map','review']};
 const PLAN_PHASES={base:['map','access','review'],silver:['map','access','recovery','review'],gold:['map','access','recovery','legacy','review'],guardian:PHASES,scanner_10:['verify']};
+const DELIVERY_CODES={
+  base:['audit','mapping','report'],
+  silver:['audit','mapping','report','accountRecovery'],
+  gold:['audit','mapping','report','accountRecovery','reputation','continuity','digitalLegacy'],
+  guardian:['audit','mapping','report','accountRecovery','reputation','continuity','digitalLegacy','review']
+};
+const DELIVERY_COPY={
+  it:{title:'Libretto delle consegne',intro:'Vedi le singole attività del tuo ordine e gli aggiornamenti registrati da AETERNA. Il codice del risultato ti aiuta a ritrovarlo nel canale di consegna concordato.',missing:'Aggiornamento da registrare',responsible:'Referente',due:'Scadenza concordata',delivered:'Consegnata il',evidence:'Riferimento al risultato',ack:'Presa visione registrata il',ackPending:'Presa visione da registrare',unset:'Da definire',audit:'Audit e analisi',mapping:'Mappatura degli account',report:'Guardian Report™',review:'Revisione periodica',states:{to_agree:'Da concordare',scheduled:'Programmata',in_progress:'In lavorazione',awaiting_customer:'In attesa del cliente',delivered:'Consegnata',cancelled:'Annullata'}},
+  en:{title:'Delivery record',intro:'See the individual activities in your order and the updates recorded by AETERNA. Use the result reference to find it through the agreed delivery channel.',missing:'Update yet to be recorded',responsible:'Point of contact',due:'Agreed due date',delivered:'Delivered on',evidence:'Result reference',ack:'Acknowledgement recorded on',ackPending:'Acknowledgement yet to be recorded',unset:'To be agreed',audit:'Audit and analysis',mapping:'Account mapping',report:'Guardian Report™',review:'Periodic review',states:{to_agree:'To be agreed',scheduled:'Scheduled',in_progress:'In progress',awaiting_customer:'Waiting for the customer',delivered:'Delivered',cancelled:'Cancelled'}},
+  fr:{title:'Suivi des prestations',intro:'Consultez les activités de votre commande et les mises à jour enregistrées par AETERNA. La référence du résultat permet de le retrouver via le canal de remise convenu.',missing:'Mise à jour à enregistrer',responsible:'Référent',due:'Échéance convenue',delivered:'Livrée le',evidence:'Référence du résultat',ack:'Prise de connaissance enregistrée le',ackPending:'Prise de connaissance à enregistrer',unset:'À définir',audit:'Audit et analyse',mapping:'Cartographie des comptes',report:'Guardian Report™',review:'Révision périodique',states:{to_agree:'À convenir',scheduled:'Programmée',in_progress:'En cours',awaiting_customer:'En attente du client',delivered:'Livrée',cancelled:'Annulée'}},
+  es:{title:'Registro de entregas',intro:'Consulta las actividades de tu pedido y las novedades registradas por AETERNA. La referencia del resultado te ayuda a encontrarlo en el canal de entrega acordado.',missing:'Actualización por registrar',responsible:'Responsable',due:'Fecha acordada',delivered:'Entregada el',evidence:'Referencia del resultado',ack:'Confirmación de lectura registrada el',ackPending:'Confirmación de lectura por registrar',unset:'Por definir',audit:'Auditoría y análisis',mapping:'Mapa de cuentas',report:'Guardian Report™',review:'Revisión periódica',states:{to_agree:'Por acordar',scheduled:'Programada',in_progress:'En curso',awaiting_customer:'A la espera del cliente',delivered:'Entregada',cancelled:'Cancelada'}},
+  pt:{title:'Registo de entregas',intro:'Consulte as atividades da sua encomenda e as atualizações registadas pela AETERNA. Use a referência para encontrar o resultado no canal de entrega acordado.',missing:'Atualização por registar',responsible:'Responsável',due:'Prazo acordado',delivered:'Entregue em',evidence:'Referência do resultado',ack:'Tomada de conhecimento registada em',ackPending:'Tomada de conhecimento por registar',unset:'Por definir',audit:'Auditoria e análise',mapping:'Mapeamento de contas',report:'Guardian Report™',review:'Revisão periódica',states:{to_agree:'A acordar',scheduled:'Agendada',in_progress:'Em curso',awaiting_customer:'A aguardar o cliente',delivered:'Entregue',cancelled:'Cancelada'}}
+};
 const h=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const plain=value=>Boolean(value&&Object.getPrototypeOf(value)===Object.prototype);
 const stamp=value=>typeof value==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/.test(value)&&Number.isFinite(Date.parse(value))&&new Date(value).toISOString().replace('.000Z','Z')===value.replace('.000Z','Z');
@@ -36,6 +49,36 @@ function preparationPhases(c){
 }
 const goalName=(core,key)=>typeof core.goals[key]==='string'?core.goals[key]:core.goals[key].name;
 
+function renderDeliveryLedger(order, copy, catalog, format){
+  const configuration=order.configuration;
+  const codes=[...new Set([...DELIVERY_CODES[configuration.plan],...configuration.extras])];
+  const ledger=order.delivery_ledger;
+  const items=new Map();
+  if(ledger?.schema==='aeterna.delivery-ledger.v1'&&Array.isArray(ledger.items)){
+    for(const entry of ledger.items){
+      if(!plain(entry)||!codes.includes(entry.service_code)||!Object.hasOwn(copy.states,entry.state)||items.has(entry.service_code)){
+        items.clear();
+        break;
+      }
+      items.set(entry.service_code,entry);
+    }
+  }
+  const time=value=>stamp(value)?`<time datetime="${h(value)}">${h(format(value))}</time>`:h(copy.unset);
+  const field=(label,value)=>`<div><dt>${h(label)}</dt><dd>${value}</dd></div>`;
+  const rows=codes.map(code=>{
+    const item=items.get(code);
+    const name=Object.hasOwn(copy,code)?copy[code]:catalog.extras[code].name;
+    const status=item?copy.states[item.state]:copy.missing;
+    const result=item?.state==='delivered'
+      ? field(copy.delivered,time(item.delivered_at))+field(copy.evidence,`<code>${h(item.evidence_reference)}</code>`)+
+        (item.acknowledged_at?field(copy.ack,time(item.acknowledged_at)):field(copy.ackPending,'—'))
+      : '';
+    const fields=field(copy.responsible,h(item?.responsible??copy.unset))+field(copy.due,time(item?.due_at))+result;
+    return `<li><strong>${h(name)}</strong><p>${h(status)}</p><dl>${fields}</dl></li>`;
+  });
+  return `<details id="deliveries-${h(order.reference)}" class="core-card core-delivery-ledger"><summary>${h(copy.title)}</summary><p>${h(copy.intro)}</p><ul>${rows.join('')}</ul></details>`;
+}
+
 export function renderServices(data,locale='it'){
   const lang=Object.hasOwn(SERVICE_COPY,locale)?locale:'it',copy=SERVICE_COPY[lang],core=CORE_COPY[lang],catalog=SERVICE_CATALOG[lang];
   const contact=`<a class="core-button" href="mailto:info@aeternadigitallegacy.com">${h(copy.contact)}</a>`;
@@ -52,7 +95,8 @@ export function renderServices(data,locale='it'){
     const preparation=order.state==='cancelled'?'':`<h6>${h(copy.preparation)}</h6><p>${h(copy.preparationNote)}</p><div class="core-actions">${preparationPhases(c).map(phase=>`<button type="button" class="core-button" data-service-phase="${phase}">${h(copy.prepare)}: ${h(core.phases[phase].title)}</button>`).join('')}</div>`;
     // Non-active orders cannot advertise an assisted delivery as completed.
     const delivery=active?`<p><strong>${h(copy.fulfilment[f.status])}</strong></p>${f.status==='delivered'?`<p>${h(copy.deliveredAt)}: <time datetime="${h(f.delivered_at)}">${h(format(f.delivered_at))}</time></p>`:''}`:`<p>${h(order.state==='payment_pending'?copy.pending:order.state==='cancelled'?copy.cancelled:copy.review)}</p>`;
-    return `<article class="core-card core-service-order"><h5>${h(plan.name)}</h5><dl><div><dt>${h(copy.reference)}</dt><dd><code>${h(order.reference)}</code></dd></div><div><dt>${h(copy.submitted)}</dt><dd><time datetime="${h(order.submitted_at)}">${h(format(order.submitted_at))}</time></dd></div><div><dt>${h(copy.state)}</dt><dd>${h(copy.states[order.state])}</dd></div><div><dt>${h(copy.plan)}</dt><dd>${h(plan.name)}</dd></div><div><dt>${h(copy.client)}</dt><dd>${h(core.clients[c.client])}</dd></div><div><dt>${h(copy.profiles)}</dt><dd>${c.profiles}</dd></div></dl>${c.plan==='scanner_10'?`<p class="core-note">${h(copy.scanner)}</p>`:scope}<h6>${h(copy.goals)}</h6>${list(c.goals,key=>goalName(core,key))}<h6>${h(copy.extras)}</h6>${extras}<details><summary>${h(copy.included)}</summary>${list(plan.services,value=>value)}<p>${h(plan.duration)}</p><p>${h(catalog.delivery)}</p></details>${c.plan==='scanner_10'?'':`<h6>${h(copy.delivery)}</h6><p class="core-small">${h(copy.deliveryNote)}</p>${delivery}<p>${h(copy.deliveryDetails)}</p>`}${!active&&c.plan==='scanner_10'?delivery:''}${preparation}</article>`;
+    const ledger=active&&c.plan!=='scanner_10'?renderDeliveryLedger(order,DELIVERY_COPY[lang],catalog,format):'';
+    return `<article class="core-card core-service-order"><h5>${h(plan.name)}</h5><dl><div><dt>${h(copy.reference)}</dt><dd><code>${h(order.reference)}</code></dd></div><div><dt>${h(copy.submitted)}</dt><dd><time datetime="${h(order.submitted_at)}">${h(format(order.submitted_at))}</time></dd></div><div><dt>${h(copy.state)}</dt><dd>${h(copy.states[order.state])}</dd></div><div><dt>${h(copy.plan)}</dt><dd>${h(plan.name)}</dd></div><div><dt>${h(copy.client)}</dt><dd>${h(core.clients[c.client])}</dd></div><div><dt>${h(copy.profiles)}</dt><dd>${c.profiles}</dd></div></dl>${ledger}${c.plan==='scanner_10'?`<p class="core-note">${h(copy.scanner)}</p>`:scope}<h6>${h(copy.goals)}</h6>${list(c.goals,key=>goalName(core,key))}<h6>${h(copy.extras)}</h6>${extras}<details><summary>${h(copy.included)}</summary>${list(plan.services,value=>value)}<p>${h(plan.duration)}</p><p>${h(catalog.delivery)}</p></details>${c.plan==='scanner_10'?'':`<h6>${h(copy.delivery)}</h6><p class="core-small">${h(copy.deliveryNote)}</p>${delivery}<p>${h(copy.deliveryDetails)}</p>`}${!active&&c.plan==='scanner_10'?delivery:''}${preparation}</article>`;
   }).join(''));
 }
 
