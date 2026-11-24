@@ -32,22 +32,22 @@
       </div>
     </header>
     <main id="main">
-      <section class="hero" aria-labelledby="hero-title"><div class="hero-content">
+      <section class="hero hero-access" aria-labelledby="hero-title"><div class="hero-content">
         <p class="eyebrow" data-i18n="heroEyebrow">Il tuo spazio AETERNA</p>
         <h1 id="hero-title">AETERNA CORE<br><span>Pulse365™</span></h1>
         <p class="hero-description" data-i18n="heroText">Uno spazio personale per controllare messaggi sospetti e prendere decisioni più consapevoli.</p>
-        <div class="actions"><a class="button primary" href="#login-title" data-i18n="emailSignIn">Accedi con email</a><a class="button quiet" href="https://config.aeternadigitallegacy.com/" data-i18n="discoverPlans">Scopri piani e prezzi</a></div><div class="pills"><span data-i18n="pillPrivate">Accesso personale</span><span data-i18n="pillNoArchive">Analisi non archiviate</span><span data-i18n="pillHuman">La decisione resta tua</span></div>
-      </div><div class="hero-mark hero-photo" aria-hidden="true"><img src="/assets/aeterna-continuita.webp" alt="" width="1440" height="960" fetchpriority="high"></div></section>
+        <div class="actions"><a id="login-action" class="button primary" href="#login-title" data-i18n="emailSignIn">Accedi con email</a><a class="button quiet" href="https://config.aeternadigitallegacy.com/" data-i18n="discoverPlans">Scopri piani e prezzi</a></div><div class="pills"><span data-i18n="pillPrivate">Accesso personale</span><span data-i18n="pillNoArchive">Analisi non archiviate</span><span data-i18n="pillHuman">La decisione resta tua</span></div>
+      </div><img class="hero-backdrop" src="/assets/aeterna-accesso.webp" alt="" width="1536" height="1024" fetchpriority="high"></section>
 
       <nav class="continuity-links" aria-label="AETERNA"><a href="https://config.aeternadigitallegacy.com/qr-continuita.html" lang="it">QR di continuità</a><a href="https://config.aeternadigitallegacy.com/comuni.html" lang="it">Per i Comuni</a></nav>
 
-      <p id="global-status" class="notice" role="status" aria-live="polite" data-i18n="checking">Il servizio si sta avviando: verifica della sessione in corso. Dopo un periodo di inattività l’avvio può richiedere circa un minuto.</p>
+      <p id="global-status" class="notice" role="status" aria-live="polite" data-i18n="checking">Stiamo cercando una sessione aperta. Puoi già inserire la tua email.</p>
 
-      <section id="login-panel" class="panel login-panel" aria-labelledby="login-title" hidden>
+      <section id="login-panel" class="panel login-panel" aria-labelledby="login-title">
         <div><p class="eyebrow" data-i18n="accessEyebrow">Area clienti riservata</p><h2 id="login-title" data-i18n="loginTitle">Entra nel tuo spazio.</h2><p class="muted" data-i18n="loginIntro">Usa l’email associata al tuo abbonamento. Non servono token nei link o password da ricordare.</p></div>
         <div class="login-forms">
-          <form id="email-form" novalidate><label for="email" data-i18n="emailLabel">Email dell’abbonamento</label><input id="email" name="email" type="email" autocomplete="email" maxlength="254" required spellcheck="false" autocapitalize="none"><p class="field-help" data-i18n="emailHelp">Se l’indirizzo è abilitato, riceverai un codice monouso valido 10 minuti. Non condividere il codice.</p><button id="send-code" type="submit" class="button primary" data-i18n="sendCode">Ricevi il codice</button></form>
-          <form id="code-form" novalidate hidden><label for="code" data-i18n="codeLabel">Codice monouso a 8 cifre</label><input id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" minlength="8" maxlength="8" pattern="[0-9]{8}" required><p class="field-help" data-i18n="codeHelp">Controlla anche la cartella spam. L’invio può richiedere qualche istante.</p><div class="actions"><button id="verify-code" type="submit" class="button primary" data-i18n="verifyCode">Accedi</button><button id="change-email" type="button" class="button quiet" data-i18n="changeEmail">Cambia email / richiedi un nuovo codice</button></div></form>
+          <form id="email-form" method="post" novalidate><label for="email" data-i18n="emailLabel">Email dell’abbonamento</label><input id="email" name="email" type="email" autocomplete="email" maxlength="254" required spellcheck="false" autocapitalize="none" aria-describedby="email-help"><p id="email-help" class="field-help" data-i18n="emailHelp">Se l’indirizzo è abilitato, riceverai un codice monouso valido 10 minuti. Non condividere il codice.</p><button id="send-code" type="submit" class="button primary" data-i18n="sendCode" disabled>Ricevi il codice</button><p id="login-initializing" class="field-help" data-i18n="loginInitializing">Stiamo caricando l’accesso. Ricarica la pagina se il pulsante resta disattivato.</p></form>
+          <form id="code-form" method="post" novalidate hidden><label for="code" data-i18n="codeLabel">Codice monouso a 8 cifre</label><input id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" minlength="8" maxlength="8" pattern="[0-9]{8}" required aria-describedby="code-help"><p id="code-help" class="field-help" data-i18n="codeHelp">Controlla anche la cartella spam. L’invio può richiedere qualche istante.</p><div class="actions"><button id="verify-code" type="submit" class="button primary" data-i18n="verifyCode" disabled>Accedi</button><button id="change-email" type="button" class="button quiet" data-i18n="changeEmail">Cambia email / richiedi un nuovo codice</button></div></form>
           <p id="auth-status" class="status-text" role="status" aria-live="polite"></p>
         </div>
       </section>

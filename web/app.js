@@ -4,7 +4,7 @@ import {composeScan,validateScan,createGeneration,legacyClean,cleanAddress,isTer
 import {createWorkspace} from "./workspace.js";
 const $=(id)=>document.getElementById(id);
 const generation=createGeneration();
-const state={locale:"it",csrf:null,account:null,challenge:null,operation:null,remoteUncertain:false,scanController:null,clearController:null,authController:null,logoutBusy:false,authBusy:false,scanning:false,clearing:false,ocrWorker:null,ocrPending:null,ocrBusy:false,ocrTimer:null,blobUrls:new Set(),statusKeys:new Map()};
+const state={locale:"it",csrf:null,account:null,challenge:null,operation:null,remoteUncertain:false,scanController:null,clearController:null,authController:null,sessionController:null,logoutBusy:false,authBusy:false,scanning:false,clearing:false,ocrWorker:null,ocrPending:null,ocrBusy:false,ocrTimer:null,blobUrls:new Set(),statusKeys:new Map()};
 const journey=createWorkspace({root:$("journey-root"),getLocale:()=>state.locale,profileRequest:(path,options={})=>request(path,{timeoutMs:35000,...options}),deviceRequest:()=>request('/api/workspace/resume-scope',{timeoutMs:35000}),onViewChange:view=>{$("scanner-surface").hidden=view!=="scanner";}});
 const LOCALE_KEY="aeterna.core.locale";
 const timeout=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -21,9 +21,41 @@ function status(id,key,kind=""){const el=$(id);state.statusKeys.set(id,{key,kind
 function errorStatus(id,error){const key=`errors.${error?.code}`;status(id,translate(state.locale,key)?key:"networkError","error");}
 function announceError(error){errorStatus("scan-status",error);}
 function setAuthBusy(value){state.authBusy=value;$("send-code").disabled=value;$("verify-code").disabled=value;$("change-email").disabled=value;}
+function resetLoginForm(){
+  state.challenge=null;
+  $("code").value="";
+  $("email-form").hidden=false;
+  $("code-form").hidden=true;
+  status("auth-status","");
+}
+function stopSessionRestore(){
+  const controller=state.sessionController;
+  state.sessionController=null;
+  controller?.abort();
+}
+function startAuthRequest(){
+  if(state.sessionController){
+    stopSessionRestore();
+    status("global-status",legacyCleanOk?"ready":"storageWarning",legacyCleanOk?"":"warning");
+  }
+  const controller=new AbortController();
+  state.authController=controller;
+  setAuthBusy(true);
+  return controller;
+}
+function finishAuthRequest(controller){
+  if(state.authController!==controller)return;
+  state.authController=null;
+  setAuthBusy(false);
+}
+function stopAuthRequest(){
+  const controller=state.authController;
+  finishAuthRequest(controller);
+  controller?.abort();
+}
 function updateControls(){const permitted=!!state.account&&(state.account.unlimited===true||Number(state.account.scans_remaining)>0);$("scan-button").disabled=!permitted||state.scanning||state.clearing||state.logoutBusy||state.ocrBusy||state.remoteUncertain;$("ocr-button").disabled=!state.account||state.scanning||state.clearing||state.ocrBusy||state.logoutBusy;$("scan-image").disabled=state.ocrBusy||state.scanning;$("scan-form").setAttribute("aria-busy",String(state.scanning||state.ocrBusy));$("logout").disabled=state.logoutBusy;$("clear-button").disabled=state.clearing;}
-function showLoggedOut(){journey.clear();state.account=null;state.csrf=null;$("protected-area").hidden=true;$("login-panel").hidden=false;$("logout").hidden=true;$("account-plan").textContent="—";$("account-expires").textContent="—";$("account-credits").textContent="—";updateControls();}
-function showAuthenticated(payload){if(payload?.authenticated!==true||typeof payload.csrf_token!=="string"||!payload.account)throw new ApiError("INVALID_RESPONSE");state.csrf=payload.csrf_token;state.account=payload.account;journey.setAccount(payload.account);state.remoteUncertain=false;state.challenge=null;$("email").value="";$("code").value="";$("code-form").hidden=true;$("email-form").hidden=false;$("login-panel").hidden=true;$("protected-area").hidden=false;$("logout").hidden=false;status("auth-status","");status("global-status","signedIn","success");renderAccount();updateControls();const sessionAccount=state.csrf;request("/api/services",{timeoutMs:25000}).then(data=>{if(state.csrf===sessionAccount)journey.setServices(data);}).catch(()=>{if(state.csrf===sessionAccount)journey.setServices({ok:false,source_available:false,orders:[]});});}
+function showLoggedOut(){journey.clear();state.account=null;state.csrf=null;resetLoginForm();$("protected-area").hidden=true;$("login-panel").hidden=false;$("login-action").hidden=false;$("logout").hidden=true;$("account-plan").textContent="—";$("account-expires").textContent="—";$("account-credits").textContent="—";updateControls();}
+function showAuthenticated(payload){if(payload?.authenticated!==true||typeof payload.csrf_token!=="string"||!payload.account)throw new ApiError("INVALID_RESPONSE");state.csrf=payload.csrf_token;state.account=payload.account;journey.setAccount(payload.account);state.remoteUncertain=false;$("email").value="";resetLoginForm();$("login-panel").hidden=true;$("login-action").hidden=true;$("protected-area").hidden=false;$("logout").hidden=false;status("global-status","signedIn","success");renderAccount();updateControls();const sessionAccount=state.csrf;request("/api/services",{timeoutMs:25000}).then(data=>{if(state.csrf===sessionAccount)journey.setServices(data);}).catch(()=>{if(state.csrf===sessionAccount)journey.setServices({ok:false,source_available:false,orders:[]});});}
 function renderAccount(){if(!state.account)return;journey.refreshAccount(state.account);const account=state.account;const noExpiry={it:"Crediti senza scadenza",en:"Credits do not expire",fr:"Crédits sans date d’expiration",es:"Créditos sin caducidad",pt:"Créditos sem prazo de validade"};$("account-plan").textContent=displayPlan(account.plan)||t("unknown");$("account-expires").textContent=account.plan==="scanner_10"&&account.unlimited===false&&account.expires_at===null?(noExpiry[state.locale]||noExpiry.it):(formatExpiry(account.expires_at,state.locale)||t("unknown"));$("account-credits").textContent=account.unlimited===true?t("unlimited"):Number.isInteger(account.scans_remaining)&&account.scans_remaining>=0?new Intl.NumberFormat(state.locale).format(account.scans_remaining):t("unknown");updateControls();}
 function translatePage(){journey.setLocale(state.locale);document.documentElement.lang=state.locale;document.querySelectorAll("[data-legal-document]").forEach(link=>{link.href="https://config.aeternadigitallegacy.com/"+link.dataset.legalDocument+"-"+state.locale+".html";});$("language").value=state.locale;for(const el of document.querySelectorAll("[data-i18n]")){const value=t(el.dataset.i18n);if(value)el.textContent=value;}$("language").setAttribute("aria-label",t("language"));for(const [id,item]of state.statusKeys)status(id,item.key,item.kind);for(const el of document.querySelectorAll("[data-result-key]")){el.textContent=t(el.dataset.resultKey)||t(el.dataset.fallback||"unknownIndicator");}renderAccount();updateCounter();}
 async function request(path,{body,signal,csrf=state.csrf,timeoutMs=15000,keepalive=false}={}){
@@ -55,9 +87,51 @@ function renderResult(result){clearResult();$("save-scan-summary").disabled=fals
   for(const item of result.indicators.slice(0,40)){const key=typeof item?.key==="string"&&/^[a-z_]+$/.test(item.key)?item.key:"unknown";resultItem($("result-indicators"),`indicators.${key}`,"unknownIndicator");}
   if(!result.indicators.length)resultItem($("result-indicators"),"noIndicators","noIndicators");for(const item of result.recommendations.slice(0,20)){const key=typeof item==="string"&&/^[a-z_]+$/.test(item)?item:"unknown";resultItem($("result-recommendations"),`recommendations.${key}`,"unknownRecommendation");}for(const item of result.limitations.slice(0,20)){const key=typeof item==="string"&&/^[a-z_]+$/.test(item)?item:"unknown";resultItem($("result-limitations"),`limitations.${key}`,"unknownLimitation");}panel.hidden=false;panel.focus({preventScroll:true});panel.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest"});}
 
-$("email-form").addEventListener("submit",async(event)=>{event.preventDefault();if(state.authBusy)return;if(!$("email").checkValidity()){status("auth-status","invalidEmail","error");$("email").focus();return;}setAuthBusy(true);status("auth-status","sending");const controller=new AbortController();state.authController=controller;try{const data=await request("/api/auth/start",{body:{email:$("email").value.trim(),locale:state.locale},csrf:null,signal:controller.signal,timeoutMs:25000});if(typeof data.challenge_id!=="string")throw new ApiError("INVALID_RESPONSE");state.challenge=data.challenge_id;$("email").value="";$("email-form").hidden=true;$("code-form").hidden=false;status("auth-status","codeSent");$("code").focus();}catch(error){errorStatus("auth-status",error);}finally{state.authController=null;setAuthBusy(false);}});
-$("code-form").addEventListener("submit",async(event)=>{event.preventDefault();if(state.authBusy)return;const code=$("code").value.trim();if(!/^\d{8}$/.test(code)||!state.challenge){status("auth-status","invalidCode","error");return;}setAuthBusy(true);status("auth-status","verifying");const controller=new AbortController();state.authController=controller;try{const data=await request("/api/auth/verify",{body:{challenge_id:state.challenge,code},csrf:null,signal:controller.signal,timeoutMs:25000});showAuthenticated(data);}catch(error){$("code").value="";errorStatus("auth-status",error);}finally{state.authController=null;setAuthBusy(false);}});
-$("change-email").addEventListener("click",()=>{state.challenge=null;$("code").value="";$("email-form").hidden=false;$("code-form").hidden=true;status("auth-status","");$("email").focus();});
+$("login-action").addEventListener("click",event=>{
+  event.preventDefault();
+  $(state.challenge?"code":"email").focus();
+});
+$("email-form").addEventListener("submit",async(event)=>{
+  event.preventDefault();
+  if(state.authBusy||state.account)return;
+  const field=$("email");
+  if(!field.checkValidity()){
+    status("auth-status","invalidEmail","error");
+    field.focus();
+    return;
+  }
+  const controller=startAuthRequest();
+  status("auth-status","sending");
+  try{
+    const data=await request("/api/auth/start",{body:{email:field.value.trim(),locale:state.locale},csrf:null,signal:controller.signal,timeoutMs:25000});
+    if(state.authController!==controller)return;
+    if(typeof data.challenge_id!=="string")throw new ApiError("INVALID_RESPONSE");
+    state.challenge=data.challenge_id;
+    field.value="";
+    $("email-form").hidden=true;
+    $("code-form").hidden=false;
+    status("auth-status","codeSent");
+    $("code").focus();
+  }catch(error){if(state.authController===controller)errorStatus("auth-status",error);}
+  finally{finishAuthRequest(controller);}
+});
+$("code-form").addEventListener("submit",async(event)=>{
+  event.preventDefault();
+  if(state.authBusy||state.account)return;
+  const code=$("code").value.trim();
+  if(!/^\d{8}$/.test(code)||!state.challenge){status("auth-status","invalidCode","error");return;}
+  const controller=startAuthRequest();
+  status("auth-status","verifying");
+  try{
+    const data=await request("/api/auth/verify",{body:{challenge_id:state.challenge,code},csrf:null,signal:controller.signal,timeoutMs:25000});
+    if(state.authController===controller)showAuthenticated(data);
+  }catch(error){
+    if(state.authController!==controller)return;
+    $("code").value="";
+    errorStatus("auth-status",error);
+  }finally{finishAuthRequest(controller);}
+});
+$("change-email").addEventListener("click",()=>{resetLoginForm();$("email").focus();});
 $("code").addEventListener("input",()=>{$("code").value=$("code").value.replace(/[^0-9]/g,"").slice(0,8);});
 $("scan-form").addEventListener("submit",async(event)=>{event.preventDefault();if(state.scanning||state.clearing||state.ocrBusy||state.remoteUncertain||!state.csrf||!state.account)return;const validation=validateScan(readFields());if(!validation.valid){status("scan-status",validation.error,"error");return;}if(state.account.unlimited!==true&&!(Number(state.account.scans_remaining)>0)){status("scan-status","noCredits","error");return;}const id=crypto.randomUUID();const version=generation.next();const controller=new AbortController();state.operation=id;state.scanController=controller;state.scanning=true;clearResult();status("clear-status","");status("scan-status","scanning");updateControls();let body={operation_id:id,message:composeScan(readFields()),locale:state.locale};try{const data=await request("/api/scans",{body,signal:controller.signal,timeoutMs:45000});body=null;if(!generation.isCurrent(version))return;if(data.operation_id!==id||!validResult(data.result))throw new ApiError("INVALID_RESPONSE");if(data.account){state.account=data.account;renderAccount();}renderResult(data.result);status("scan-status","scanComplete","success");}catch(error){body=null;if(!generation.isCurrent(version))return;if(error.code==="UNAUTHORIZED"||error.status===401){localClear();state.operation=null;state.remoteUncertain=false;showLoggedOut();status("global-status","sessionEnded","warning");return;}state.remoteUncertain=true;if(error.name==="AbortError")status("scan-status","scanTimeout","warning");else announceError(error);}finally{body=null;if(generation.isCurrent(version)){state.scanController=null;state.scanning=false;updateControls();}}});
 $("scan-form").addEventListener("input",updateCounter);
@@ -87,10 +161,34 @@ $("ocr-button").addEventListener("click",async()=>{
 });
 $("logout").addEventListener("click",async()=>{if(state.logoutBusy)return;if(!await journey.confirmLeave())return;journey.clear();state.logoutBusy=true;const operation=state.operation;const csrf=state.csrf;localClear();state.authController?.abort();$("email").value="";$("code").value="";state.challenge=null;$("protected-area").hidden=true;status("global-status","logoutWorking");updateControls();if(operation&&csrf)await remoteClear(operation,csrf,false);try{await request("/api/auth/logout",{body:{},csrf,timeoutMs:18000});state.operation=null;showLoggedOut();status("global-status","logoutDone","success");}catch{showLoggedOut();state.csrf=csrf;$("logout").hidden=false;status("global-status","logoutUncertain","warning");}finally{state.logoutBusy=false;updateControls();}});
 $("language").addEventListener("change",()=>{state.locale=normaliseLocale($("language").value);try{localStorage.setItem(LOCALE_KEY,state.locale);}catch{}translatePage();});
-async function restoreSession(){status("global-status","checking");try{const payload=await request("/api/session",{timeoutMs:20000});if(payload.authenticated===true)showAuthenticated(payload);else{showLoggedOut();status("global-status","ready");}}catch(error){showLoggedOut();if(error.status===401||error.status===403)status("global-status",translate(state.locale,`errors.${error.code}`)?`errors.${error.code}`:"sessionEnded","warning");else errorStatus("global-status",error);}if(!legacyCleanOk)status("global-status","storageWarning","warning");}
-window.addEventListener("pagehide",()=>{journey.clear();const operation=state.operation;const csrf=state.csrf;localClear();$("email").value="";$("code").value="";state.challenge=null;state.authController?.abort();if(operation&&csrf){fetch(`/api/scans/${encodeURIComponent(operation)}/clear`,{method:"POST",credentials:"same-origin",cache:"no-store",headers:{"Content-Type":"application/json","X-CSRF-Token":csrf},body:"{}",keepalive:true}).catch(()=>{});}});
+async function restoreSession(){
+  stopSessionRestore();
+  const controller=new AbortController();
+  state.sessionController=controller;
+  status("global-status","checking");
+  try{
+    const payload=await request("/api/session",{timeoutMs:20000,signal:controller.signal});
+    if(state.sessionController!==controller)return;
+    if(payload.authenticated===true)showAuthenticated(payload);
+    else status("global-status","ready");
+  }catch(error){
+    if(state.sessionController!==controller)return;
+    if(state.account)showLoggedOut();
+    if(error.status===401||error.status===403)status("global-status",translate(state.locale,`errors.${error.code}`)?`errors.${error.code}`:"sessionEnded","warning");
+    else errorStatus("global-status",error);
+  }finally{
+    if(state.sessionController===controller){
+      state.sessionController=null;
+      if(!legacyCleanOk)status("global-status","storageWarning","warning");
+    }
+  }
+}
+window.addEventListener("pagehide",()=>{journey.clear();const operation=state.operation;const csrf=state.csrf;localClear();$("email").value="";$("code").value="";state.challenge=null;stopSessionRestore();stopAuthRequest();if(operation&&csrf){fetch(`/api/scans/${encodeURIComponent(operation)}/clear`,{method:"POST",credentials:"same-origin",cache:"no-store",headers:{"Content-Type":"application/json","X-CSRF-Token":csrf},body:"{}",keepalive:true}).catch(()=>{});}});
 window.addEventListener("pageshow",event=>{if(event.persisted){localClear();showLoggedOut();restoreSession();}});
-translatePage();restoreSession();
+translatePage();
+$("login-initializing").hidden=true;
+setAuthBusy(false);
+restoreSession();
 
 
 $("save-scan-summary").addEventListener("click",()=>{if($("result-panel").hidden)return;const items=id=>[...$(id).children].map(el=>el.textContent);const summary=["AETERNA Civil Shield",new Date().toISOString(),t("summaryNote"),t("scoreLabel")+": "+$("result-score").textContent+"/100",$("result-band").textContent,t("indicatorsTitle"),...items("result-indicators"),t("recommendationsTitle"),...items("result-recommendations"),t("limitationsTitle"),...items("result-limitations"),$("result-engine").textContent].join("\n");const blob=new Blob([summary],{type:"text/plain;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="AETERNA-Civil-Shield-riepilogo.txt";document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),15000);});
