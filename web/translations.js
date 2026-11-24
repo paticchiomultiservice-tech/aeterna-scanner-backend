@@ -105,6 +105,26 @@ Object.assign(pt, {
   scannerUrgent: "Alguém corre perigo imediato? Na UE, ligue já para o 112. Fora da UE, use o número de emergência local. Não espere pela análise.",
   guide2: "O pedido parece vir de um banco, de uma entidade ou de alguém que conhece? Abra a aplicação ou o sítio oficial que já usa, ou ligue para um número que conhecia antes da mensagem. Evite as ligações e os contactos da mensagem."
 });
+Object.assign(it, {
+  checking:"Stiamo cercando una sessione aperta. Puoi già inserire la tua email.",
+  loginInitializing:"Stiamo caricando l’accesso. Ricarica la pagina se il pulsante resta disattivato."
+});
+Object.assign(en, {
+  checking:"We’re checking for an open session. You can already enter your email address.",
+  loginInitializing:"Sign-in is loading. Reload this page if the button stays disabled."
+});
+Object.assign(fr, {
+  checking:"Nous vérifions si une session est ouverte. Vous pouvez déjà saisir votre adresse e-mail.",
+  loginInitializing:"Chargement de la connexion. Rechargez la page si le bouton reste désactivé."
+});
+Object.assign(es, {
+  checking:"Estamos comprobando si hay una sesión abierta. Ya puedes introducir tu correo electrónico.",
+  loginInitializing:"El acceso se está cargando. Recarga la página si el botón sigue desactivado."
+});
+Object.assign(pt, {
+  checking:"Estamos a verificar se há uma sessão aberta. Já pode introduzir o seu endereço de e-mail.",
+  loginInitializing:"O início de sessão está a carregar. Recarregue a página se o botão continuar desativado."
+});
 export const MESSAGES = Object.freeze({it,en,fr,es,pt});
 export function normaliseLocale(value){ const locale=String(value||"").toLowerCase().split(/[-_]/)[0];return LANGUAGES.includes(locale)?locale:"it"; }
 export function translate(locale,key){ const parts=key.split("."); let value=MESSAGES[normaliseLocale(locale)]; for(const part of parts){ value=value?.[part]; } return typeof value==="string"?value:null; }
